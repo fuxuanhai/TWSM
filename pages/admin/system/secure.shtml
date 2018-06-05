@@ -1,0 +1,228 @@
+<div id="secureForm" ng-controller="secureForm" ng-init="titleDes=false;addTimeDes=false;lastTimeDes=false;lastTime1Des=false;logoImgDes=false;htmlVariableDes=false;">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">安全设置</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" thisid="{{id}}" cid="{{cid}}" mid="{{mid}}" class="sysSetForm" name="briefAdd" style="margin:30px auto 30px auto">
+
+						<div class="form-group" typeNum="1">
+							<label>密码有效期:</label>
+							<input ng-model="validDay" name="title" style="margin-left: -2px;" />
+							<span ng-show="validDayDes" style="color:red">请输入正整数，如果永不过期请不要输入</span>
+							<span ng-show="validDayDes1" style="color:red">请输入正整数且大于密码有效期</span>
+						</div>
+						<div class="form-group" typeNum="1">
+							<label>密码失效提示期:</label>
+							<input ng-model="effectDay" name="title" style="margin-left: -2px;" />
+							<span ng-show="effectDayDes" style="color:red">请输入正整数且小于密码有效期，如果不提示请不要输入</span>
+						</div>
+						<div class="form-group" typeNum="3">
+							<label>密码失效禁止登陆:</label>
+							<div class="checkbox" style="display: inline;">
+								<label class="i-checks" style="width:auto">
+									<input type="checkbox" ng-model="effectLogin"><i></i> 是
+								</label>
+							</div>
+							<span ng-show="effectLoginDes" style="color:red">如果选中，密码一旦失效则账号将禁止登录</span>
+						</div>
+						<div class="form-group" typeNum="9">
+							<label>开放注册:</label>
+							<div id="sid" style="display: inline;">
+								<label class="i-checks" style='margin-right:10px;width:auto' ng-repeat="x in roles">
+									<input type='checkbox' value="{{ x.id }}" id="userSid{{ x.id }}"><i></i>{{ x.name }}
+								</label>
+							</div>
+							<span ng-show="sidDes" style="color:red">只有开放注册的系统角色方可在前台注册，管理员不能注册</span>
+						</div>
+						<div class="row" style="width:100%;float:left;margin-top:20px">
+							<button class="btn btn-sm btn-primary" style="margin-left:145px" ng-click="save()">提交</button>
+						</div>
+					
+					</form>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+.sysSetForm input{
+	height: 25px;
+}
+
+</style>
+<script>
+	app.controller('secureForm', ['$scope', '$state','$modal', function($scope, $state,$modal) {
+		
+		//获取系统角色
+		var data = {
+			"TOKEN": $.cookie('userToken')
+		};
+		var type="adminSystemSecureSysRole";
+		applicationService(data,type,function(data) {
+			dataToken = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				dataToken.splice(0,1);	//	把管理员去掉
+				$scope.roles = dataToken;
+				$scope.$apply();
+				
+				//获取安全设置详情
+				var data = {
+					"TOKEN": $.cookie('userToken'),
+					"data": [{
+						"group": "secure",
+						"key": "validDay"
+					},{
+						"group": "secure",
+						"key": "effectDay"
+					},{
+						"group": "secure",
+						"key": "effectLogin"
+					},{
+						"group": "secure",
+						"key": "sid"
+					}]
+				};
+				var type="adminSystemSecureConfigGet";
+				applicationService(data,type,function(data) {
+							var thisData = data.data;
+							var status = data.status;
+							var statusText = data.statusText;
+							if(status == 1) {
+								/*$scope.validDay = "10";
+								$scope.effectDay = "5";
+								$scope.effectLogin = true;
+								sid = 6;*/
+								var sid="";
+								for(var i = 0; i < thisData.length; i++) {
+									if(thisData[i].key == "validDay") {
+										$scope.validDay = thisData[i].value;
+									}
+									if(thisData[i].key == "effectDay") {
+										$scope.effectDay = thisData[i].value;
+									}
+									if(thisData[i].key == "effectLogin" && thisData[i].value=="true") {
+										
+										$scope.effectLogin = true;
+									}
+									if(thisData[i].key == "sid") {
+										sid = thisData[i].value;
+									}
+									
+								}
+								
+								
+								$("#sid input[type='checkbox']").prop('checked', false);
+								for(var i = 0; i < $scope.roles.length; i++) {
+									if((sid & $scope.roles[i].id) == $scope.roles[i].id) {
+										$("#userSid" + $scope.roles[i].id).prop('checked', true);
+									}
+								}
+								$scope.$apply();
+								
+							} else {
+								alertHtml($modal,"获取安全设置失败,原因："+statusText);
+							}
+						},$("body"));
+				
+				
+				
+			} else {
+				alertHtml($modal,"获取系统角色失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		$scope.save = function(){
+			$scope.validDayDes = false;
+			$scope.validDayDes1 = false;
+			$scope.effectDayDes = false;
+			var reg = /^[1-9]\d*$/;
+			if(!reg.test($scope.validDay) && $scope.validDay!="" && $scope.validDay!=null){
+				$scope.validDayDes = true;
+				return;
+			}
+			
+			if(!reg.test($scope.effectDay) && $scope.effectDay!="" && $scope.effectDay!=null){
+				$scope.effectDayDes = true;
+				return;
+			}
+			
+			if($scope.effectDay!="" && $scope.effectDay!=null){
+				if($scope.validDay=="" || $scope.validDay==null){
+					$scope.validDayDes1 = true;
+					return;
+				}
+			}
+			
+			if(parseInt($scope.effectDay)>=parseInt($scope.validDay)){
+				$scope.effectDayDes = true;
+				return;
+			}
+			
+			if($scope.effectLogin==null || $scope.effectLogin=="undefined" || $scope.effectLogin==undefined){
+				$scope.effectLogin = "";
+			}
+			
+			var objArr = $("#sid input[type='checkbox']:checked");
+			var sid = 0;
+			for(var i = 0; i < objArr.length; i++) {
+				sid = parseInt(sid) + parseInt(objArr.eq(i).val());
+			}
+			
+			var data = {
+				"TOKEN": $.cookie('userToken'),
+				"data": []
+			};
+			data.data[data.data.length] = {
+				"group": "secure",
+				"key": "validDay",
+				"value": $scope.validDay,
+				"description": '密码有效期'
+			};
+			data.data[data.data.length] = {
+				"group": "secure",
+				"key": "effectDay",
+				"value": $scope.effectDay,
+				"description": '密码失效提示期'
+			};
+			data.data[data.data.length] = {
+				"group": "secure",
+				"key": "effectLogin",
+				"value": $scope.effectLogin,
+				"description": '密码失效禁止登陆'
+			};
+			data.data[data.data.length] = {
+				"group": "secure",
+				"key": "sid",
+				"value": sid,
+				"description": '开放注册'
+			};
+			
+			var type="adminSystemSecureConfigAdd";
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"安全设置成功");
+				} else {
+					alertHtml($modal,"安全设置失败,原因："+statusText);
+				}
+			},$('body'));
+		}
+		
+	}]);
+	
+	
+	
+	
+	
+	
+	
+</script>		

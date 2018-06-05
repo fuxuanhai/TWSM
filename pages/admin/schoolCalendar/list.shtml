@@ -1,0 +1,303 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">校历列表</h1>
+</div>
+<div class="wrapper-md" id="permissionList" ng-controller="permissionList">
+
+	<div class="panel panel-default">
+		<div class="row wrapper">
+			<div class="col-sm-6 col-xs-12">
+				<div class="input-group text-left" style="z-index:900">
+						
+						<div  style="float:left;padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;padding:5px 10px">所属机构</div>
+						 
+						
+						<div style="width:250px;display:inline-block;padding-left:0px;float:left" class="sysRoles" >
+							<ui-select ng-model="organization.selected" theme="bootstrap" >
+								<ui-select-match >{{$select.selected.title}}</ui-select-match>
+								<ui-select-choices repeat="item in organization | filter: $select.search">
+									<div ng-bind-html="item.title | highlight: $select.search"></div>
+								</ui-select-choices>
+							</ui-select>
+						</div>
+						<button class="btn btn-sm btn-default" style="height:30px;margin-left:20px;float:left" ng-click="searchGo()" type="button">查询</button>
+						
+				</div>
+					
+			</div>
+			<div class="col-sm-6 m-b-xs text-right">
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="add()">添加</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="update()">修改</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="delete()">删除</button>
+			</div>
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped b-t b-light">
+				<thead>
+					<tr>
+						<th style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+							 </label>
+						</th>
+						<th>学期名称</th>
+						<th>学期类型</th>
+						<th>开始日期</th>
+						<th>结束日期</th>
+						<th>所属机构</th>
+						<th>周标记</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x  in calenders">
+						<td style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+							</label>
+						</td>
+						<td>{{ x.schooltitle }}</td>
+						<td>{{ x.typeName }}</td>
+						<td>{{ x.startdate }}</td>
+						<td>{{ x.enddate }}</td>
+						<td>{{ x.organizationtitle }}</td>
+						<td>{{ x.weekflagName }}</td>
+						
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+			<div class="row">
+				<div class="col-sm-12 text-center">
+					<ul class="pagination pagination-sm m-t-none m-b-none">
+						<li>
+							<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+						</li>
+
+						<li ng-repeat="x  in pages">
+							<a href ng-click="pageClick({{x}})">{{x}}</a>
+						</li>
+
+						<li>
+							<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+						</li>
+						<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+					</ul>
+				</div>
+
+			</div>
+		</footer>
+	</div>
+</div>
+
+<style>
+
+.sysRoles button{
+	height:30px;
+}
+.sysRoles ul{
+	margin-top:30px;
+}
+</style>
+
+<script>
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('permissionList', ['$scope','$state','$modal', function($scope,$state,$modal) {
+		
+		$scope.pagesize= pageSize;
+		var currentPage=1;
+		
+		
+		//获取机构列表
+		var data={}
+		var type="adminSchoolCalenderListOrgList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.organization = thisData.data ;
+				//$scope.organization.selected = thisData.data[0];
+				//获取校历列表
+				var data = {
+					"oid":"",
+					"pn":1,
+					"pc":$scope.pagesize,
+				};
+				getList(data);
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取机构列表失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		
+		
+		
+		function getList(data){
+			var type="adminSchoolCalenderList";
+			applicationService(data,type,function(data) {
+				
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var count = thisData.count;
+					$scope.calenders=thisData.data;
+					for(var i=0;i<$scope.calenders.length;i++){
+						/*for(var j=0;j<$scope.organization.length;j++){
+							if($scope.calenders[i].oid==$scope.organization[j].id){
+								$scope.calenders[i].oidName = $scope.organization[j].title;
+							}
+						}*/
+						if($scope.calenders[i].type==0){
+							$scope.calenders[i].typeName="上学期";
+						}else{
+							$scope.calenders[i].typeName="下学期";
+						}
+						if($scope.calenders[i].weekflag==0){
+							$scope.calenders[i].weekflagName="周一";
+						}else{
+							$scope.calenders[i].weekflagName="周日";
+						}
+						
+						
+						
+						
+					}
+					
+					page($scope, count, currentPage,$scope.pagesize);
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取机构列表失败,原因："+statusText);
+				}
+			},$("body"));
+		}
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			if($scope.organization.selected=="" || $scope.organization.selected==null){
+				$scope.organization.selected={id:''}
+			}
+			var data = {
+				
+				"oid":$scope.organization.selected.id,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+		}
+		
+
+		//搜索事件
+		$scope.searchGo = function() {
+			currentPage=1;
+			if($scope.organization.selected=="" || $scope.organization.selected==null){
+				$scope.organization.selected={id:''}
+			}
+			
+			var data = {
+				"oid":$scope.organization.selected.id,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+
+		}
+		//添加
+		$scope.add = function() {
+			
+			$state.go("app.schoolCalendarFrom",{"id":"","title":"添加校历"});
+		}
+		
+		//修改
+		$scope.update = function(id) {
+			var id = getCheckedOfList();
+			if(id.length !=1) {
+				alert("请选中一条信息");
+				return;
+			}
+			$state.go("app.schoolCalendarFrom",{"id":id[0],"title":"修改校历"});
+		}
+		//全选事件
+		$scope.checkboxClick = function() {
+
+			if($scope.checkAll == false) {
+				$(".i-checks input[type='checkbox']:checked").prop("checked", false)
+			} else {
+				$(".i-checks input[type='checkbox']").prop("checked", true)
+			}
+		}
+		
+
+		//删除
+		$scope.delete = function() {
+			deleteHtml($modal,"确定删除信息吗?",deletePermissions);
+			function deletePermissions(){
+				var id = getCheckedOfList();
+				
+				if(id.length < 1) {
+					alertHtml($modal,"请至少选中一条信息删除");
+					return ;
+				}
+				
+				var data = {
+					"id": id,
+				};
+				var type="adminSchoolCalenderListDelete";
+				consoleLog(data)
+				applicationService(data,type,function(data) {
+					userToken = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							
+							$state.reload('app.schoolCalendarList');
+						});
+						
+					} else {
+						alertHtml($modal,"删除失败,原因："+statusText);
+					}
+				},$("body"));
+			}
+		}
+		
+	}]);
+	
+	
+	
+		
+	
+	
+</script>

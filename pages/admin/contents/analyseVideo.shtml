@@ -1,0 +1,140 @@
+﻿<div id="activityForm" ng-controller="analyseForm">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">视频分析</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row" style="min-height:450px;background:white">
+			<div ng-show="textShowModel">
+				<h3>正在对案例中的“视频”分析</h1>
+				<div id="analyseIng">{{text}}</div>
+				<div id="analyseIng" ng-show="textShow">分析结果需要一定的时间，请耐心等待，分析完成后，结果将自动入库，请往相关案例查看</div>
+			</div>
+			<div  style="width: 96%;height: auto;float: left;padding: 0px;margin: 20px 2%" ng-repeat="x in contents">
+				
+				<div style="width:100%;padding-left:10px;height: height;float:left;">
+					<h3 >{{x.fileName}} >> 分析结果</h3>
+					<div style="width:100%;height:auto;float:left;margin:10px 0px" ng-repeat="y in x.results">
+						<div class="biaoqian">{{ y.type | baioqianType }}</div>
+						
+						<div style="width:80%;float:left">
+							<div class="biaoqianOne" ng-repeat="z in y.result">
+								<span>{{z.attribute}}</span>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+				
+				
+				
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+
+.form-group{
+min-height: 30px;
+}
+h3{
+	width:100%;
+	padding: 0px 20px;
+}
+#analyseIng{
+	width:100%;
+	height:100px;
+	line-height:100px;
+	font-size:20px;
+	padding:20px;
+}
+#analyseResult{
+	width: 100%;
+    min-height: 200px;
+	margin-top:20px;
+	padding:20px;
+}
+
+.biaoqian{
+    padding: 10px 0px;
+    text-align: center;
+    float: left; 
+    width: 15%;
+	border-radius:5px;
+	border:1px solid #BFBFBF;
+	background: #1199c4;
+    color: white;
+
+}
+.biaoqianOne{
+  padding:10px;
+  margin-left:20px;
+  float:left;
+  border:1px solid #BFBFBF;
+  margin-bottom: 10px;
+}
+.biaoqianOne i{
+	cursor:pointer
+}
+
+
+
+</style>
+<script>
+	app.filter('baioqianType', function() { //可以注入依赖
+		return function(type) {
+			if(type=="location"){
+				type = "场景"
+			}else if(type=="entity"){
+				type = "实体";
+			}else if(type=="scenario"){
+				type = "方案";
+			}else if(type=="keyword"){
+				type = "关键字";
+			}else if(type=="time"){
+				type = "时间";
+			}else if(type=="figure"){
+				type = "人物";
+			}
+			return type;
+		}
+	});
+	app.controller('analyseForm', ['$scope', '$compile', '$timeout', '$state','$stateParams','$modal', function($scope, $compile, $timeout, $state,$stateParams,$modal) {
+		
+		$scope.id = $stateParams.id;
+		$scope.contents=[]
+		$scope.textShow=true;
+		$scope.textShowModel=true;
+		var applyData={
+			"id":$scope.id,
+		}
+		var typeName1 = "adminContentVideo";  //视频分析
+			
+			applicationService(applyData,typeName1,function(data){
+			var status = data.status;
+			var statusText = data.statusText;
+			var thisData2 = data.data;
+			if(status == 1) {
+				if(thisData2.length<1 || thisData2==null || thisData2==""){
+					$scope.text = statusText;
+					console.log(statusText)
+					if(statusText=="暂无视频"){
+						$scope.textShow=false;
+					}
+				}else{
+					
+					$scope.contents = thisData2;
+					$scope.textShowModel=false;
+					
+					
+				}
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"分析失败;原因:" + statusText);
+			}
+		},$('body'));
+		
+		
+		
+	}])
+</script>

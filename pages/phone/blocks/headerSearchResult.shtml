@@ -1,0 +1,130 @@
+
+	 <style>
+		.app-header-fixed {
+			padding-top: 0px;
+		}
+		.div-bor{
+
+position: relative;
+    height: 40px;
+    line-height: 40px;
+    width: 75%;
+    margin-left: 5%;
+	top: 10px;
+background:white;
+border-radius: 10px;
+float: left;
+
+}
+
+.icon-search{
+
+position: absolute;
+z-index:5;
+top:10px;
+background-image: url(../contents/imgs/phone/search.png); /*引入图片图片*/
+
+background-repeat: no-repeat; /*设置图片不重复*/
+
+background-position: 0px 0px; /*图片显示的位置*/
+
+width: 30px; /*设置图片显示的宽*/
+
+height: 30px; /*图片显示的高*/
+
+}
+.icon-yuyin{
+	position: absolute;
+    right: 0;
+    z-index: 5;
+    top: 5px;
+	right:5px;
+    background-image: url(../contents/imgs/phone/yuyin.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 23px;
+    height: 30px;
+	cursor:pointer;
+
+}
+
+.search{
+
+width:100%;
+height:100%;
+padding-right:30px;
+text-align:center;
+cursor:pointer;
+}
+.div-cancel{
+	height: 40px;
+    line-height: 40px;
+    width: 15%;
+	color:white;
+	font-size:1.2rem;
+	float: left;
+	margin: 10px 0px 0px 10px;
+}
+
+.searchInput{
+width: 100%;
+    height: 38px;
+    border: 0px;
+    box-sizing: border-box;
+	padding-left: 2px;
+    outline: none;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+	 
+	 </style> 
+	  
+	  
+	  <!-- navbar header -->
+	  
+      <div  style="width:100%;height:60px;background:#800408;" ng-controller="headerCon">
+		<div class="div-bor">
+			<div class="search">
+			<!--	<img src="../contents/imgs/phone/search.png" /><span>搜索</span>-->
+			<input class="searchInput" onfocus="this.value=''" value="{{searchInputText}}"/>
+			</div>
+			<i class="icon-yuyin" ng-click="yuyinSearch()"></i>
+		</div>
+		<div class="div-cancel" ng-click="cancel()">
+			取消
+		</div>
+      </div>
+	  
+	
+
+
+      <!-- / navbar header -->
+
+	 <script>
+	 
+
+		app.controller('headerCon', ['$scope','$state','$modal','$location','$stateParams', function($scope,$state,$modal,$location,$stateParams) {
+			$scope.searchInputText =  $stateParams.text;
+			
+			$(".searchInput").keyup(function(event){
+			  if(event.keyCode ==13){
+				var searchText = $(this).val();
+				$state.go("phoneApp.searchResult",{"text":searchText});
+			  }
+			});
+			
+			
+			$scope.yuyinSearch = function(){
+				$state.go("phoneApp.yuyinSearch")
+			}
+			
+			$scope.textSearch = function(){
+				$state.go("phoneApp.textSearch");
+			}
+			$scope.cancel =function(){
+				$state.go("phoneApp.home");
+			}
+			
+		}])	
+
+	 </script>

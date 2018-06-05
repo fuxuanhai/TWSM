@@ -1,0 +1,71 @@
+﻿<div  style="width:100%;margin:auto;float: left;" ng-controller="yuancheng" id="yuancheng">
+	<h3>你选择远程的班级</h3>
+	<!-- <div ng-click="classOne({{x}})"      class="classOne" ng-repeat="x  in calenders">{{ x.className }}</div> -->
+	<div ng-click="classOne({{x}})"   onclick="fxhclassOne(x)"   class="classOne" ng-repeat="x  in calenders">{{ x.className }}</div>
+	
+
+</div>
+
+<style>
+	.app-header-fixed {
+		padding-top: 0px;
+		background:#F3EEED;
+	}
+	h3{
+		width: 80%;
+		margin-left: 10%;
+	}
+	.classOne{
+		width: 80%;
+		height:50px;
+		line-height:50px;
+		margin:10% 10px;
+		margin-left: 10%;
+		text-align:center;
+		border:1px solid #ccc;
+	}
+	
+</style>
+<script>
+	app.controller('yuancheng', ['$scope','$state','$timeout','$modal','$stateParams', function($scope,$state,$timeout,$modal,$stateParams) {
+		//获取班级列表
+		var data = {};
+		var type="phoneContentYuanchengList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.calenders=thisData;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取班级列表失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		$scope.classOne = function(x){
+			var ip = x.ip;
+			var host = x.port;
+			var ip_port = ip+"_"+host;
+			window.android.startRemoteCotrol(ip_port);
+			window.webkit.messageHandlers.startRemoteCotrol.postMessage(ip_port);
+		}
+		
+	}]);
+
+	function  fxhclassOne (x) { 
+		var ip = x.ip;
+			var host = x.port;
+			var ip_port = ip+"_"+host;
+			console.log(navigator.userAgent);
+			if ((navigator.userAgent.indexOf('Android')  !=  -1))  {    
+			console.log("安卓");     
+			window.android.startRemoteCotrol(ip_port);
+		} else if ((navigator.userAgent.indexOf('iPhone')  !=  -1)) {
+			console.log("苹果");          
+			window.webkit.messageHandlers.startRemoteCotrol.postMessage(ip_port);
+		}
+			
+		
+	 }
+</script>	

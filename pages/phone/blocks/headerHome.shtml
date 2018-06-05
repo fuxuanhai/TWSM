@@ -1,0 +1,92 @@
+
+	 <style>
+		.app-header-fixed {
+			padding-top: 0px;
+		}
+		.div-bor{
+
+position: relative;
+    height: 40px;
+    line-height: 40px;
+    width: 90%;
+    margin-left: 5%;
+	top: 10px;
+background:white;
+border-radius: 10px;
+}
+
+.icon-search{
+
+position: absolute;
+z-index:5;
+top:10px;
+background-image: url(../contents/imgs/phone/search.png); /*引入图片图片*/
+
+background-repeat: no-repeat; /*设置图片不重复*/
+
+background-position: 0px 0px; /*图片显示的位置*/
+
+width: 30px; /*设置图片显示的宽*/
+
+height: 30px; /*图片显示的高*/
+
+}
+.icon-yuyin{
+	position: absolute;
+    right: 0;
+    z-index: 5;
+    top: 5px;
+	right:5px;
+    background-image: url(../contents/imgs/phone/yuyin.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 23px;
+    height: 30px;
+	cursor:pointer;
+
+}
+
+.search{
+
+width:100%;
+height:100%;
+padding-right:30px;
+text-align:center;
+cursor:pointer;
+}
+	 
+	 </style> 
+	  
+	  
+	  <!-- navbar header -->
+	  
+      <div  style="width:100%;height:60px;background:#800408;" ng-controller="headerCon">
+		<div class="div-bor">
+			<div class="search" ng-click="textSearch()">
+				<img src="../contents/imgs/phone/search.png" /><span>搜索</span>
+			</div>
+			<i class="icon-yuyin" ng-click="yuyinSearch()"></i>
+		</div>
+      </div>
+	  
+	
+
+
+      <!-- / navbar header -->
+
+	 <script>
+	 
+
+		app.controller('headerCon', ['$scope','$state','$modal','$location','$rootScope', function($scope,$state,$modal,$location,$rootScope) {
+			
+			$scope.yuyinSearch = function(){
+				$state.go("phoneApp.yuyinSearch")
+			}
+			
+			$scope.textSearch = function(){
+				$state.go("phoneApp.textSearch")
+			}
+			
+		}])	
+
+	 </script>

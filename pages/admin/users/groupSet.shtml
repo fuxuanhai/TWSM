@@ -1,0 +1,316 @@
+<div class="modal-body wrapper-lg" ng-controller="groupSetChild">
+	<div class="panel panel-default" id="groupContent">
+        <div class="panel-heading font-bold">班级设置</div>
+        <div class="panel-body" >
+			<div style="height:300px;" >
+				<div class="leftCatagories">
+					<ul class="list-group no-bg no-borders pull-in" ng-repeat=" y in sysRoles">
+						<div class="liTitle" sid="{{y.id}}" >{{ y.text}}</div>
+						<li class="list-group-item" id="userGroup{{ x.id }}" style="border-bottom:1px solid #cfd6d8;padding: 0px;min-height: 40px;line-height: 40px;" ng-repeat=" x in y.userGroups">
+							<a href="" obj="{{ x }}" ng-click="userGroup({{x}} ,$event)"  style="word-wrap: break-word;border-bottom:1px solid #cfd6d8;height:40px;width:100%;display:block;padding-left: 10px;cursor:pointer"> {{ x.text }}</a>
+						</li>
+					</ul>
+				</div>
+				<div class="centerImg" >
+					<img ng-click="rightMove()" class="rightMove" src="../contents/imgs/rightMove.png" />
+					<img ng-click="leftMove()" class="leftMove" src="../contents/imgs/leftMove.png" />
+				</div>
+				<div class="rightCatagories">
+					<ul class="list-group no-bg no-borders pull-in" ng-repeat=" y in sysRolesCheck">
+						<div class="liTitle">{{ y.text}}</div>
+						<li class="list-group-item" id="userGroupCheck{{ x.id }}" style="border-bottom:1px solid #cfd6d8;padding: 0px;min-height: 40px;line-height: 40px;"  ng-repeat=" x in y.userGroupsCheck">
+							<a href="" obj="{{ x }}" ng-click="userGroupCheck({{x}} ,$event)"  style="word-wrap: break-word;border-bottom:1px solid #cfd6d8;height:40px;width:100%;display:block;padding-left: 10px;cursor:pointer"> {{ x.text }}</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+				
+			<div class="text-center">
+				<button  style="margin-right:100px" type="submit" class="btn btn-sm btn-primary" ng-click="ok()">下一步</button>
+				<button  type="submit" class="btn btn-sm btn-primary" ng-click="back()">返回</button>
+			</div>
+			
+		</div>
+      </div>
+</div>
+<style>
+#groupContent{
+border: 0px;
+}
+.modal-lg{
+width: 600px;
+}
+.wrapper-lg,.modal-body{
+	padding:0px;
+}
+.panel{
+    margin-bottom:0px;
+}
+.leftCatagories,.rightCatagories{
+	width: 40%;
+    height: 280px;
+    border: 1px solid #888;
+    float: left;
+	overflow: auto;
+}
+.centerImg{
+	float:left;width:20%;height:280px;
+}
+.rightMove{
+	width:40px;
+	margin:85px 35px 15px 35px;
+	cursor:pointer;
+}
+.leftMove{
+	width:40px;
+	margin:15px 35px 85px 35px;
+	cursor:pointer;
+}
+.pull-in{
+	margin:0px;
+	width:100%;
+}
+.liTitle{
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    background: #f6f8f8;
+}
+.list-group.no-bg .list-group-item.activeMuneCheck>a {
+    background: wheat;
+}
+
+</style>	
+<script>
+app.controller('groupSetChild', ['$scope', '$modal', function($scope, $modal) {
+		
+		
+		$scope.sysRoles=[];
+		$scope.user=$scope.$parent.user;
+		var user = $scope.$parent.user;
+		
+		$modalInstance = $scope.$parent.modalInstance;
+		
+		//获取用户组列表
+		var data = {};
+		var type="adminUsersGroupSetList";
+		applicationService(data,type,function(data) {
+			var thisDate = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				for(var i=0;i<thisDate.length;i++){
+					if((user.sid & thisDate[i].id.substring(3)) == thisDate[i].id.substring(3) && thisDate[i].children!="" && thisDate[i].children!=null){
+						$scope.sysRoles = $scope.sysRoles.concat([thisDate[i]]);
+						var sysRolesLastIndex= parseInt($scope.sysRoles.length-1);
+						$scope.sysRoles[sysRolesLastIndex].userGroups=[];
+						$scope.sysRoles[sysRolesLastIndex].userGroups = $scope.sysRoles[sysRolesLastIndex].userGroups.concat(changeList(thisDate[i].children,0));
+					}
+				}
+				$scope.$apply();
+				
+				
+				//获取用户的用户组列表
+				var data = {"uid":$scope.user.id};
+				var type="adminUsersGroupSetGet";
+				applicationService(data,type,function(data) {
+			
+					var thisDate = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						for(var i=0;i<thisDate.length;i++){
+							$("#userGroup" + thisDate[i].id).addClass('activeMune');
+						}
+						clickRight();
+						$scope.$apply();
+					}else{
+						alertHtml($modal,"获取用户的用户组表失败，失败原因："+statusText);
+					}
+				},$("#groupContent"))
+			}else{
+				alertHtml($modal,"获取用户组列表失败，失败原因："+statusText);
+			}
+			
+		},$("#groupContent"))
+		
+		
+		
+
+		
+		//点击左边的用户组选中		
+		$scope.userGroup = function(obj, $event) {
+			var className = $("#userGroup" + obj.id).attr("class");
+			if(className.indexOf("activeMune")>-1){
+				$("#userGroup" + obj.id).removeClass('activeMune');
+				var Child = findChild(obj.id,obj.sid,$scope.sysRoles);
+				for(var i=0;i<Child.length;i++){
+					$("#userGroup" + Child[i].id).removeClass('activeMune');
+				}
+			}else{
+				$("#userGroup" + obj.id).addClass('activeMune');
+				var parsents = findParents(obj.id,obj.sid,$scope.sysRoles);
+				for(var i=0;i<parsents.length;i++){
+					$("#userGroup" + parsents[i].id).addClass('activeMune');
+				}
+			}
+			
+			
+		}
+		
+		//点击右边的用户组选中
+		$scope.userGroupCheck = function(obj, $event) {
+			
+			var className = $("#userGroupCheck" + obj.id).attr("class");
+			if(className.indexOf("activeMuneCheck")>-1){
+				$("#userGroupCheck" + obj.id).removeClass('activeMuneCheck');
+				var parsents = findParents(obj.id,obj.sid,$scope.sysRoles);
+				for(var i=0;i<parsents.length;i++){
+					$("#userGroupCheck" + parsents[i].id).removeClass('activeMuneCheck');
+				}
+			}else{
+				$("#userGroupCheck" + obj.id).addClass('activeMuneCheck');
+				
+				var Child = findChild(obj.id,obj.sid,$scope.sysRoles);
+				for(var i=0;i<Child.length;i++){
+					$("#userGroupCheck" + Child[i].id).addClass('activeMuneCheck');
+				}
+			}
+		}
+				
+		//右移用户组
+		$scope.rightMove = function() {
+			clickRight();
+		}
+		
+		function clickRight(){
+			$scope.sysRolesCheck = [];
+			var groupsArr=[];
+			
+			for(j=0;j<$(".leftCatagories ul").length;j++){
+				var length = $(".leftCatagories ul").eq(j).find(".activeMune").length;
+				if(length>0){
+					var sid = $(".leftCatagories ul").eq(j).find(".liTitle").attr("sid");
+					var text = $(".leftCatagories ul").eq(j).find(".liTitle").text();
+					var SidObj ={"sid":sid,"text":text};
+					$scope.sysRolesCheck.push(SidObj);
+					$scope.sysRolesCheck[($scope.sysRolesCheck.length-1)].userGroupsCheck=[];
+				}
+				for(var i=0;i<length;i++){
+					var obj = JSON.parse($(".leftCatagories ul").eq(j).find(".activeMune").eq(i).find("a").attr("obj"));
+					$scope.sysRolesCheck[($scope.sysRolesCheck.length-1)].userGroupsCheck.push(obj);
+				}
+			}
+		}
+				
+		
+				
+		function findParents(id,sid,list){
+			var options = [];
+			for(var i=0;i<list.length;i++){
+				if(sid == list[i].id.substring(3)){
+					for(var j=0;j<list[i].userGroups.length;j++){
+						if(id == list[i].userGroups[j].id){
+							var options1 = [list[i].userGroups[j]];
+							options = options1.concat(options);
+							if(list[i].userGroups[j].pid>0){
+								var parent = findParents(list[i].userGroups[j].pid,sid,list);
+								options = parent.concat(options);
+							}else{
+								var parent = [list[i]];
+								options = parent.concat(options);
+							}
+						}
+					}
+				}
+			}				
+			return options;
+		}
+		
+		function findChild(id,sid,list){
+			var options = [];
+			for(var i=0;i<list.length;i++){
+				if(sid == list[i].id.substring(3)){
+					for(var j=0;j<list[i].userGroups.length;j++){
+						if(id == list[i].userGroups[j].pid){
+							var options1 = [list[i].userGroups[j]];
+							options = options.concat(options1);
+							var Child = findChild(list[i].userGroups[j].id,sid,list);
+								options = options.concat(Child);
+						}
+					}
+				}
+			}				
+			return options;
+		}
+				
+		//左移用户组
+		$scope.leftMove = function(){
+		
+			$scope.sysRolesCheck = [];
+			var groupsArr=[];
+			
+			for(j=0;j<$(".rightCatagories ul").length;j++){
+				var length = $(".rightCatagories ul").eq(j).find("li").length;
+				if(length>0){
+					var sid = $(".rightCatagories ul").eq(j).find(".liTitle").attr("sid");
+					var text = $(".rightCatagories ul").eq(j).find(".liTitle").text();
+					var SidObj ={"sid":sid,"text":text};
+					$scope.sysRolesCheck.push(SidObj);
+					$scope.sysRolesCheck[($scope.sysRolesCheck.length-1)].userGroupsCheck=[];
+				}
+				for(var i=0;i<length;i++){
+					if($(".rightCatagories ul").eq(j).find("li").eq(i).attr("class").indexOf("activeMuneCheck")<0){
+						var obj = JSON.parse($(".rightCatagories ul").eq(j).find("li").eq(i).find("a").attr("obj"));
+						$scope.sysRolesCheck[($scope.sysRolesCheck.length-1)].userGroupsCheck.push(obj);
+					}
+					
+				}
+			}
+			
+		}
+			
+		
+		//下一步点击事件
+		$scope.ok = function () {
+			$modalInstance.close();
+			var url = cliURLPage+"admin/users/rolesSet.shtml";
+			var data = {};
+			pageRequest({
+				url: url,
+				data: data,
+				callback: function(data) {
+					//角色设置的弹层
+					var modalInstance = $modal.open({
+							template:data,
+							controller: 'rolesSet',
+							size: "lg",
+							resolve: {
+								sysRolesCheck: function () {
+									return $scope.sysRolesCheck;
+								},
+								user: function () {
+									return $scope.user;
+								},
+							}	
+					});
+				}
+			});				
+		}
+		
+		//返回事件
+		$scope.back = function () {
+			$modalInstance.dismiss('cancel');
+		};
+		
+	}]);
+	//角色设置的弹层的控制器
+	app.controller('rolesSet', ['$scope', '$modalInstance', '$modal','sysRolesCheck','user', function($scope, $modalInstance,$modal,sysRolesCheck,user) {
+		$scope.user=user;
+		$scope.modalInstance=$modalInstance;
+		$scope.sysRolesCheck =sysRolesCheck;
+		
+					
+	}]);
+	
+</script>

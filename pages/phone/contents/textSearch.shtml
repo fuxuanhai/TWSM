@@ -1,0 +1,154 @@
+﻿<div  style="width:100%;margin:auto;float: left;" ng-controller="homeIndex" id="homeIndex">
+	<div class="typeTest">
+		<div class="div-bor">
+			<i class="icon-search"></i>
+			<input class="search" ng-modal="searchText" placeholder="搜索"/>
+			<i class="icon-yuyin" ng-click="yuyinSearch()"></i>
+		</div>
+	</div>
+	<div style="width:100%;height:auto;float:left;text-align:center;font-size:1.5rem;margin-top: 60px;margin-bottom: 40px;">
+		猜你搜索
+	</div>
+	
+	<div style="width:100%;height:auto;float:left;text-align:center;">
+		<div class="typeTestOne" ng-click="typeTestOne(x)" ng-repeat="x in catagories">{{x.title}}</div>
+		
+	</div>
+	
+
+</div>
+
+<style>
+	.app{
+		background:#F3EEED;
+	}
+	.typeTest{
+		width:100%;height:40px;falot:left;margin-top:60px;
+	}
+	.typeTestOne{
+		width:auto;
+		height:40px;
+		padding:0px 20px;
+		margin:10px 0px;
+		line-height:40px;
+		display: inline-block;
+		border-right:3px solid #800508;
+		color:#800508;
+		font-size:1.2rem;
+	}
+	
+	
+	.div-bor{
+		position: relative;
+		height: 40px;
+		line-height: 40px;width: 90%;margin-left: 5%;
+		background:white;
+		border-radius: 10px;
+	}
+
+.icon-search{
+
+position: absolute;
+z-index:5;
+top:5px;
+background-image: url(../contents/imgs/phone/search.png); /*引入图片图片*/
+
+background-repeat: no-repeat; /*设置图片不重复*/
+
+background-position: 0px 0px; /*图片显示的位置*/
+
+width: 30px; /*设置图片显示的宽*/
+
+height: 30px; /*图片显示的高*/
+
+}
+.icon-yuyin{
+	position: absolute;
+    right: 0;
+    z-index: 5;
+    top: 5px;
+	right:10px;
+    background-image: url(../contents/imgs/phone/yuyin.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 23px;
+    height: 30px;
+	cursor:pointer;
+
+}
+
+.search{
+
+width:100%;
+height:100%;
+padding:0px 30px;
+cursor:pointer;
+border-radius: 10px;
+}
+	
+	
+	
+</style>
+<script>
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal', function($scope,$state,$timeout,$modal) {
+		var currentPage =1;
+		var data = {"id":2};
+		var type="phoneContentsTextSearchCat";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.catagories=changeList(thisData, 0);
+				$scope.$apply();
+			} else {
+					alertHtml($modal,"获取类别列表失败,原因："+statusText);
+				}
+			},$('body'))
+		
+			//递归转换数据格式，把集合中list和他的子集合children，合并成一元数组options;
+		function changeList(list, deep) {
+			var options = [];
+			var pre = '';
+			var tmp = deep;
+			if(deep > 0) {
+				while(tmp > 0) {
+					pre += '    ';
+					tmp--;
+				}
+			}
+			for(var i = 0; i < list.length; i++) {
+				list[i].text = list[i].title;
+				if(list[i].pre==null){
+					list[i].pre="";
+				}
+				list[i].pre = pre + list[i].pre;
+				list[i].title = pre + list[i].title;
+				options[options.length] = list[i];
+				if(list[i].children) {
+					var child = changeList(list[i].children, deep + 1);
+					options = options.concat(child);
+				}
+			}
+			return options;
+		}
+		
+		$scope.typeTestOne = function(x){
+				$state.go("phoneApp.searchResult",{"cid":x.id});
+			}
+		
+		$scope.yuyinSearch = function(){
+				$state.go("phoneApp.yuyinSearch");
+			}
+		
+		$(".search").keyup(function(event){
+		  if(event.keyCode ==13){
+			var searchText = $(this).val();
+			$state.go("phoneApp.searchResult",{"text":searchText});
+		  }
+		});
+	
+
+		
+	}]);
+</script>	

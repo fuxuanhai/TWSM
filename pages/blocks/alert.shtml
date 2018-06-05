@@ -1,0 +1,17 @@
+<div class="modal-body wrapper-lg">
+	<div class="panel panel-default">
+        <div class="panel-heading font-bold">信息提示</div>
+        <div class="panel-body">
+			<div style="min-height:40px;line-height:30px" ng-bind-html="infoText" class="alertText"></div>
+			<button id="schoolSubmit" type="submit" class="btn btn-sm btn-primary" style="float: right;" ng-click="ok()">确认</button>
+        </div>
+      </div>
+</div>
+<style>
+.wrapper-lg,.modal-body{
+	padding:0px;
+}
+.panel{
+    margin-bottom:0px;
+}
+</style>		

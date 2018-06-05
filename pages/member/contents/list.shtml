@@ -1,0 +1,257 @@
+﻿<div id="contentList" ng-controller="contentList">
+	<div class="bg-light lter b-b wrapper-md" style="height:65px">
+		<h1 class="m-n font-thin h3 ">{{catagoriesName}}</h1>
+		
+	</div>
+	<div class="wrapper-md">
+
+		<div class="panel panel-default">
+		<div class="row wrapper">
+				<div class="col-sm-6">
+					<div class="input-group" style="z-index:1000;">
+						<span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;">关键字</div>
+						 </span>
+						<input type="text" ng-model="search" class="input-sm form-control">
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default" style="height:34px;margin-top: -4px;margin-left:20px;" ng-click="searchGo()" type="button">搜索</button>
+						 </span>
+					</div>
+				</div>
+				<div class="col-sm-6 text-right">
+					<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="add()">添加</button>
+					<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="update()">修改</button>
+					<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="delete()">删除</button>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="table table-striped b-t b-light">
+					<thead>
+						<tr>
+							<th style="width:20px;">
+								<label class="i-checks m-b-none">
+									<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+								 </label>
+							</th>
+							<th>标题</th>
+							<th>作者</th>
+							<th>来源</th>
+							<th>添加时间</th>
+							<th>最后修改时间</th>
+							<th>状态</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="x  in contents"  thisId="{{x.id}}" id="listId{{x.id}}">
+							<td style="width:20px;">
+								<label class="i-checks m-b-none">
+									<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+								 </label>
+							<td>{{ x.title }}</td>
+							<td>{{ x.author }}</td>
+							<td>{{ x.source }}</td>
+							<td>{{ x.addTime }}</td>
+							<td>{{ x.lastTime }}</td>
+							<td>--</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+				<div class="row">
+					<div class="col-sm-12 text-center">
+						<ul class="pagination pagination-sm m-t-none m-b-none">
+							<li>
+								<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+							</li>
+
+							<li ng-repeat="x  in pages">
+								<a href ng-click="pageClick({{x}})">{{x}}</a>
+							</li>
+
+							<li>
+								<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+							</li>
+							<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+						</ul>
+					</div>
+
+				</div>
+			</footer>
+		</div>
+	</div>
+</div>
+<script>
+	app.controller('contentList', ['$scope','$state', '$modal','$stateParams',function($scope,$state,$modal,$stateParams) {
+	
+	
+		var cid = $stateParams.cid;
+		$scope.catagoriesName="内容管理";
+		if($stateParams.catagoriesName!="" && $stateParams.catagoriesName!=null){
+			$scope.catagoriesName = $stateParams.catagoriesName;
+		}
+		$scope.pageSize = pageSize;
+		
+		
+		//获取内容列表
+		var currentPage =1;
+		var applyData={"cid": cid,"pn":currentPage,"pc":$scope.pageSize,"keyword":"",condition:[]};
+		var type= "memberContentList";
+		applicationService(applyData,type,function(data){
+			getList(data);	
+		},$('body'));
+		
+		
+		function getList(data) {
+			
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.data;
+				var total = thisData.count;
+				
+				if(total=="" || total==null){
+					$scope.pageShow=false;
+					$scope.$digest();
+				}
+			
+				var newCon = [];
+				if(contentData=="" || contentData==null){
+					$scope.contents =[];
+					$scope.$digest();
+					return;
+				}
+				for(var i = 0; i < contentData.length; i++) {
+					newCon.push(changeData(contentData[i]))
+				}
+			
+				$scope.contents = newCon;
+				page($scope, total, currentPage,$scope.pageSize);
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}
+		}
+
+		function changeData(oneContent) {
+
+			var id = oneContent.id;
+			var mid = oneContent.mid;
+			var addTime = oneContent.addtime;
+			var lastTime = oneContent.lasttime;
+			var obj = oneContent.content;
+			var contents = eval(obj);
+			var title = "";
+			var author = "";
+			var source = "";
+			for(var i = 0; i < contents.length; i++) {
+				if(contents[i].title == "标题") {
+					title = contents[i].value;
+				}
+				if(contents[i].title == "作者") {
+					author = contents[i].value;
+				}
+				if(contents[i].title == "来源") {
+					source = contents[i].value;
+				}
+				if(contents[i].title == "开始时间") {
+					addTime = contents[i].value;
+				}
+					
+			}
+
+			return {
+				'id': id,
+				'cid': cid,
+				'addTime': addTime,
+				'lastTime': lastTime,
+				'title': title,
+				"author": author,
+				"source": source,
+				"lastTime":lastTime,
+				'obj': obj
+			}
+
+		}
+		
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var applyData={"cid": cid,"pn":currentPage,"pc":$scope.pageSize,"keyword":$scope.search,condition:[]};
+			var type= "memberContentList";
+			applicationService(applyData,type,function(data){
+				getList(data);	
+			},$('body'));
+
+		}
+		
+		//添加
+		$scope.add = function(id) {
+			$state.go("memberApp.memberContentsFrom",{"id":"",'cid':cid,"cTitle":$scope.catagoriesName});
+		}
+		
+		//修改
+		$scope.update = function() {
+			var id = getCheckedOfList();
+			if(id.length !=1) {
+				alert("请选中一条信息");
+				return;
+			}
+			
+			$state.go("memberApp.memberContentsFrom",{"id":id[0],'cid':cid,"cTitle":$scope.catagoriesName});
+		}
+		
+		//删除
+		$scope.delete = function() {
+			var idArray = getCheckedOfList();
+			if(idArray.length < 1) {
+				alert("请至少选中一条信息");
+				return;
+			}
+			deleteHtml($modal,"确定删除该信息吗?",deleteContent,idArray);
+			function deleteContent(id){
+				//删除内容
+				var applyData={"id":idArray};
+				var type= "memberContentDelete";
+				applicationService(applyData,type,function(data){
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功!",function(){
+							$state.reload('memberApp.memberContentsList',{"cid":cid,"catagoriesName":$scope.catagoriesName});
+						});
+					} else {
+						alertHtml($modal,"删除失败;原因:" + statusText);
+					}
+				},$('body'));
+			}
+			
+			
+		}
+		
+		//搜索
+		$scope.searchGo = function(){
+			
+			var currentPage =1;
+			var applyData={"cid": cid,"pn":currentPage,"pc":$scope.pageSize,"keyword":$scope.search,condition:[]};
+			var type= "memberContentList";
+			applicationService(applyData,type,function(data){
+				getList(data);	
+			},$('body'));
+		}
+		
+		
+		//导出
+		$scope.export = function() {
+			if($scope.search=="" || $scope.search==null){
+				window.location.href = cmsURL + "api/admin/content/catagoryExport.do?cid="+cid+"&keyword=";
+			}else{
+				window.location.href = cmsURL + "api/admin/content/catagoryExport.do?cid="+cid+"&keyword="+ $scope.search;
+			}
+		}
+		
+		
+	}])
+</script>

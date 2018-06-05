@@ -1,0 +1,38 @@
+   <style>
+  html,body{
+	font-size:16px;
+  }
+  .app{
+	background:white;
+  }
+ 
+  </style>
+  <!-- navbar -->
+  <div ui-view="navbar">
+  </div>
+  <!-- / navbar -->
+
+ 
+
+  <!-- content -->
+  <div class="content" ui-view>
+
+  </div>
+  <!-- /content -->
+
+
+  <!-- footer -->
+  <div ui-view="footer">
+  </div>
+  <!-- footer -->
+
+ 
+    <!--[if lte IE 9]>
+		<style>
+			.homeFooter{
+				background: #60a1db;
+			  }
+		</style>
+				
+	<![endif]-->
+  <!-- / footer -->

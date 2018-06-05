@@ -1,0 +1,272 @@
+﻿<div id="activityForm" ng-controller="activityForm">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">{{ catagoriesText }}预览</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" thisid="{{id}}" cid="{{cid}}" mid="{{mid}}" class="sysSetForm" name="briefAdd" style="margin:30px auto 30px auto;width:100%;float:left">
+
+						<div class="form-group col-sm-6" typeNum="1">
+							<label>{{ catagoriesText }}编号：</label>
+							<span>{{number}}</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="1">
+							<label>{{ catagoriesText }}题目：</label>
+							<span>{{title}}</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="1" style="height:30px">
+							<label>{{ catagoriesText }}作者：</label>
+							<span>{{author}}</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="7">
+							<label>{{ catagoriesText }}分类：</label>
+							<span>{{type}}</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="7">
+							<label>{{ catagoriesText }}语种：</label>
+							<span>{{language}}</span>
+							
+						</div>
+						<div class="form-group col-sm-6" typeNum="1" style="height:30px">
+							<label >所属行业：</label>
+							<span>{{industry}}</span>
+						</div>
+						
+						<hr style="width:100%;border-top-width:3px"/>
+						<div class="form-group col-sm-12" typeNum="5">
+							<label style='float:left'>{{ catagoriesText }}摘要：</label>
+							<div style="width: 90%;height: auto;min-height:50px;float: left;">{{abstract}}</div>
+						</div>
+						<div class="form-group col-sm-12" typeNum="5">
+							<label style='float:left'>标题图片：</label>
+							<div id="fileList1" style="width: 90%;height: auto;min-height:50px;float: left;"></div>
+						</div>
+						<div class="form-group col-sm-12" typeNum="4">
+							<label style='float:left'>{{ catagoriesText }}附件：</label>
+							<div id="fileList" class="uploader-list" style="margin-bottom:10px">
+
+							</div>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+.sysSetForm label {
+    width: auto;
+    text-align: left;
+    padding-right: 10px;
+}
+.sysSetForm span {
+    margin-left:0px
+}
+.form-group{
+min-height: 30px;
+}
+.sysSetForm input{
+	height: 30px;
+}
+.selectMune button{
+	height:30px;
+}
+.selectMune .btn{
+padding-top:4px
+}
+
+</style>
+<script>
+	app.filter('ntobr', function(){
+		var filter = function(input){
+			return input.replace(/\n/g,"<\/br>").replace(/ /g,"&nbsp;");
+		};
+		return filter;
+	});
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('activityForm', ['$scope', '$compile', '$timeout', '$state','$stateParams','$modal', function($scope, $compile, $timeout, $state,$stateParams,$modal) {
+		
+		
+		
+		// 初始化Web Uploader
+		var BASE_URL = '../contents/ueditor/third-party/webuploader';
+		var uploader = WebUploader.create({
+
+			// 选完文件后，是否自动上传。
+			auto: true,
+			// swf文件路径
+			swf: BASE_URL + '/Uploader.swf',
+
+			// 文件接收服务端。
+			server: zeroURL + 'admin/file/upload',
+
+			// 选择文件的按钮。可选。
+			// 内部根据当前运行是创建，可能是input元素，也可能是flash.
+			pick: '#filePicker',
+			
+			// 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+			resize: false
+		});  
+		
+		
+		
+		//当开始上传流程时触发。
+		uploader.on('startUpload', function() {
+		
+			var data = uploadSignature(uploader.options.server, userToken);
+			if(uploader.options.formData) {
+				uploader.options.formData.TOKEN = data;
+			} else {
+				uploader.options.formData = {
+					TOKEN: data
+				};
+			}
+		});
+
+		//当文件上传成功时触发。
+		uploader.on('uploadSuccess', function(file, response) {
+			$.post(window.API.api_decrypt, response._raw, function(data, status, xhq) {
+				var md5 = data.data;
+				$scope.logoImg = md5;
+				$("#bannerId").val(md5);
+			}, 'json');
+		});
+
+		// 当有文件添加进来的时候
+		uploader.on("fileQueued", function(file) {
+			var $li = $(
+					"<div id='" + file.id + "' class='file-item thumbnail' style='float:left;margin-right:10px'>" +
+					"<img>"
+					//   +"<div class='info'>"+file.name+"</div>"  
+					+
+					"</div>"
+				),
+				$img = $li.find("img");
+			$("#fileList").empty();
+			// $list为容器jQuery实例
+			$("#fileList").append($li);
+
+			// 创建缩略图
+			// 如果为非图片文件，可以不用调用此方法。
+			// thumbnailWidth x thumbnailHeight 为 100 x 100
+			var thumbnailWidth = 100;
+			var thumbnailHeight = 100;
+			uploader.makeThumb(file, function(error, src) {
+				if(error) {
+					$img.replaceWith("<span>不能预览</span>");
+					return;
+				}
+
+				$img.attr("src", src);
+			}, thumbnailWidth, thumbnailHeight);
+
+		});
+		
+		if($stateParams.cid==1){
+			$scope.catagoriesText="资讯";
+		}else{
+			$scope.catagoriesText="案例";
+		}
+		
+	
+		
+		//获取类别的列表
+		var data = {};
+		var type="adminContentDetailCatList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.types = changeList(thisData, 0)
+				$scope.$apply();
+				//获取内容
+				var applyData ={id : $stateParams.id}
+				var type= "adminConDetailGetInfo";
+					applicationService(applyData,type,function(data){
+						var status = data.status;
+						var statusText = data.statusText;
+						if(status == 1) {
+							var newData = changeData(data.data[0],$scope.types)
+							
+							$scope.type = newData.type;
+							$scope.number = newData.number;
+							$scope.title = newData.title;
+							$scope.author = newData.author;
+							$scope.language = newData.language;
+							$scope.industry = newData.industry;
+							$scope.key = newData.key;
+							$scope.abstract = newData.anliAbstract;
+							if(newData.titleImg!="../contents/imgs/home/banner.png"){
+								$("#titleImgId").val(newData.titleImg);
+								var imgHtml = "<img src='" + newData.titleImg + "' style='width:auto;height:100px' />"
+								$("#fileList1").append(imgHtml);
+							}
+							
+							$("#fileList").empty();
+							var  md5= newData.fujianArr;
+							console.log(111)
+							console.log(md5)
+							for(var k=0;k<md5.length;k++){
+								if(k==0){
+									$scope.logoImg=JSON.stringify(md5[k]);
+								}else{
+									$scope.logoImg = $scope.logoImg+"##&&"+JSON.stringify(md5[k]);
+								}
+								var imgHtml = "<a style='text-decoration: underline;color:red;margin-right:20px;' href='" + zeroURL + "admin/file/download?id=" + md5[k].md5 + "'>"+md5[k].fileName+"</a>";
+								if(md5[k].md5=="" || md5[k].md5==null){
+													
+								}else{
+									$("#fileList").append(imgHtml);
+								}			
+							}
+							$("#bannerId").val($scope.logoImg);	
+							$scope.$apply();
+						
+						} else {
+							alertHtml($modal,"获取内容失败;原因:" + statusText);
+						}
+					
+					},$('body'));	
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+		
+	}])
+</script>

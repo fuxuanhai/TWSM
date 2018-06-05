@@ -1,0 +1,149 @@
+﻿<div id="logsList" ng-controller="logsList">
+	<div class="bg-light lter b-b wrapper-md" style="height:65px">
+		<h1 class="m-n font-thin h3 col-sm-3">日志列表</h1>
+		
+	</div>
+	<div class="wrapper-md">
+
+		<div class="panel panel-default">
+			<div class="row wrapper">
+				<div class="col-sm-12">
+				 
+					<div class="input-group" >
+						<span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;">用户账号</div>
+						 </span>
+						<input type="text" ng-model="accountSearch" class="input-sm form-control">
+						<span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;">操作IP：</div>
+						 </span>
+						<input type="text" ng-model="IPSearch" class="input-sm form-control">
+						
+						<span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;">开始时间：</div>
+						 </span>
+						 <input id="addTime" ng-model="addTimeSearch" class="Wdate input-sm form-control" style="height:auto" type="text" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd HH:mm:ss'})">
+						 <span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;">结束时间：</div>
+						 </span>
+						 <input id="lastTime" ng-model="lastTimeSearch" class="Wdate input-sm form-control" style="height:auto"  type="text" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd HH:mm:ss'})">
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default" style="height:34px;margin-top: -4px;margin-left:20px;" ng-click="searchGo()" type="button">搜索</button>
+						 </span>
+					</div>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="table table-striped b-t b-light">
+					<thead>
+						<tr>
+							
+							<th>操作者</th>
+							<th>操作内容</th>
+							<th>IP</th>
+							<th>操作时间</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="x  in logs"  thisId="{{x.id}}" id="listId{{x.id}}">
+							<td>{{ x.account }}</td>
+							<td>{{ x.content }}</td>
+							<td>{{ x.ip }}</td>
+							<td>{{ x.addtime }}</td>
+						</tr>
+					
+					</tbody>
+				</table>
+			</div>
+			<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+				<div class="row">
+					<div class="col-sm-12 text-center">
+						<ul class="pagination pagination-sm m-t-none m-b-none">
+							<li>
+								<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+							</li>
+
+							<li ng-repeat="x  in pages">
+								<a href ng-click="pageClick({{x}})">{{x}}</a>
+							</li>
+
+							<li>
+								<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+							</li>
+							<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+						</ul>
+					</div>
+
+				</div>
+			</footer>
+		</div>
+	</div>
+</div>
+<script>
+	app.controller('logsList', ['$scope','$state','$modal', function($scope,$state,$modal) {
+		var currentPage =1;
+		$scope.pageSize=pageSize;
+		
+		
+		//获取日志的列表
+		var data = {
+			"account":"",
+			"ip":"",
+			"addtime":"",
+			"latesttime":"",
+			"pn":1,
+			"pc":$scope.pageSize,
+		};
+		getList(data);
+		function getList(data){
+			var type="adminLogsList";
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				
+				if(status == 1) {
+					var count = thisData.count;
+					$scope.logs = thisData.data;
+					page($scope, count, currentPage,$scope.pageSize)
+					$scope.$apply();
+				}else {
+					alertHtml($modal,"获取用户列表失败,原因："+statusText);
+				}
+			},$("body"))
+		}
+		
+		
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			
+			var data = {
+				"account":$scope.accountSearch,
+				"ip":$scope.IPSearch,
+				"addtime":$("#addTime").val(),
+				"latesttime":$("#lastTime").val(),
+				"pn":currentPage,
+				"pc":$scope.pageSize,
+			};
+			getList(data);
+		}
+		
+
+		//搜索事件
+		$scope.searchGo = function() {
+			currentPage=1;
+			var data = {
+				"account":$scope.accountSearch,
+				"ip":$scope.IPSearch,
+				"addtime":$("#addTime").val(),
+				"latesttime":$("#lastTime").val(),
+				"pn":currentPage,
+				"pc":$scope.pageSize,
+			};
+			getList(data);
+
+		}
+	}])
+</script>

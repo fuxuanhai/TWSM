@@ -1,0 +1,185 @@
+﻿<div id="activityForm" ng-controller="questionForm">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">{{ addTitle }}</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" thisid="{{id}}" cid="{{cid}}" mid="{{mid}}" class="sysSetForm" name="briefAdd" style="margin:30px auto 30px auto;width:100%;float:left">
+						<div class="form-group col-sm-6" style="height:30px;width:100%" typeNum="8">
+							<label style='float:left'>开始生效日期:</label>
+							<div class="input-group m-d" style="width:250px;float: left;">
+								<input id="fromDate" class="Wdate" type="text" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})">
+							</div>
+							<span ng-show="fromDateDes" style="color:red">请选择开始生效日期</span>
+						</div>
+						
+						<div class="form-group col-sm-6" style="height:30px;width:100%" typeNum="8">
+							<label style='float:left'>结束生效日期:</label>
+							<div class="input-group m-d" style="width:250px;float: left;">
+								<input id="toDate" class="Wdate" type="text" onClick="WdatePicker({el:this,dateFmt:'yyyy-MM-dd'})">
+							</div>
+							<span ng-show="toDateDes" style="color:red">请选择生效日期</span>
+							<span ng-show="lastTime1Des" style="color:red">结束时间必须大于开始时间</span>
+						</div>
+						
+						<div class="form-group col-sm-6" typeNum="1" style="height:30px;width:100%;float:left;">
+							<label >问题：</label>
+							<input  ng-model="question" name="question" style="width:250px;margin-left: -2px;" />
+							<span ng-show="questionDes" style="color:red">问题不能为空</span>
+						</div>
+						
+						<div class="form-group col-sm-6"  typeNum="1" style="width:100%;float:left;">
+							<label style='float:left'>答案：</label>
+							<textarea  ng-model="answer" name="answe" style='width:350px;height:150px'  > </textarea>
+							<span ng-show="answerDes" style="color:red">答案不能为空</span>
+						</div>
+						
+						
+						
+						<div class="row" style="width:100%;float:left;margin-top:20px">
+							<button id="tijiaoUser" class="btn btn-sm btn-primary" style="margin-left:145px" ng-click="add()">提交</button>
+							<button class="btn btn-sm btn-primary" style="margin-left:25px" ng-click="back()">返回</button>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+
+.form-group{
+min-height: 30px;
+}
+.sysSetForm input{
+	height: 30px;
+}
+.selectMune button{
+	height:30px;
+}
+.selectMune .btn{
+padding-top:4px
+}
+
+</style>
+<script>
+	
+	app.controller('questionForm', ['$scope', '$compile', '$timeout', '$state','$stateParams','$modal', function($scope, $compile, $timeout, $state,$stateParams,$modal) {
+		$scope.addTitle="添加问题";
+		$scope.typeName = "adminQuestionAdd",
+		$scope.id = $stateParams.id;
+		if($scope.id!="" && $scope.id!=null){
+			$scope.addTitle="修改问题";
+			$scope.typeName = "adminQuestionUpdate";
+			var applyData={
+				"id":$scope.id,
+			}
+			var typeName = "adminQuestionGet"
+			applicationService(applyData,typeName,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				
+				if(status == 1) {
+					var thisData ="";
+					if(data.data.list.length>0){
+						thisData = JSON.parse(data.data.list[0].content.value);
+					}else{
+						alertHtml($modal,"id错误，没有数据");
+						return ;
+					}
+					$("#fromDate").val(thisData.fromDate);
+					$("#toDate").val(thisData.toDate);
+					$scope.question = thisData.question;
+					$scope.answer = thisData.answer;
+					$scope.Cid = thisData.id;
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取问题失败;原因:" + statusText);
+				}
+			},$('body'));
+			
+		}
+			
+		$scope.back = function(){
+			$state.go('app.questionList');
+		}
+		
+		$scope.add = function() {
+			
+			$scope.fromDateDes = false;
+			$scope.toDateDes = false;
+			$scope.lastTime1Des =false;
+			$scope.questionDes = false;
+			$scope.answerDes = false;
+			var fromDate = $("#fromDate").val();
+			var toDate = $("#toDate").val();
+			
+			if(fromDate=="" || fromDate==null){
+				$scope.fromDateDes =true;
+				return false;
+			}
+			if(toDate=="" || toDate==null){
+				$scope.toDateDes =true;
+				return false;
+			}
+			
+			var stratTime = fromDate.replace(/-/g, "/"); //开始时间，转换时间格式为  年/月/日  时：分：秒
+			var lastTime = toDate.replace(/-/g, "/"); //开始时间，转换时间格式为  年/月/日  时：分：秒
+			
+		
+			var date1 = new Date(stratTime);
+			var date2 = new Date(lastTime);
+			var s1 = date1.getTime(),
+				s2 = date2.getTime();
+			var total = (s2 - s1) / 1000;
+			
+			if(total<0){
+				$scope.lastTime1Des =true;
+				return false;
+			}
+			
+			if(!captchaLibrary.isNull($scope.question)){
+					$scope.questionDes = true;
+					return ;
+			}
+			if(!captchaLibrary.isNull($scope.answer)){
+					$scope.answerDes = true;
+					return ;
+			}
+					
+			
+			
+			var applyData={
+				"id":$scope.id,
+				"content": {
+					"id":$scope.Cid,
+					"fromDate":fromDate,
+					"toDate":toDate,
+					"question":$scope.question,
+					"answer":$scope.answer,
+					
+				}
+			};
+			
+			
+			applicationService(applyData,$scope.typeName,function(data){
+				
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功!",function(){
+						$state.go('app.questionList');
+					});
+					
+				} else {
+					alertHtml($modal,"操作失败;原因:" + statusText);
+				}
+			},$('body'));	
+		}
+	}])
+</script>

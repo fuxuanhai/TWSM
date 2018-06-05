@@ -1,0 +1,108 @@
+﻿<div id="typeList" ng-controller="typeList" style="max-width:1100px;margin:auto">
+	<div class="row" style="margin:50px auto;">
+		<div  class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:0px">
+			<div class="contentListHeader">案例库</div>
+			<div class="contentList contentListActive">案例分类</div>
+			<div class="contentList" ng-click="commonContentsList()">最新案例</div>
+			<div class="contentList" ng-click="commonContentsList(1)">热门案例</div>
+			<div class="contentList" ng-click="commonContentsList(2)">精品案例</div>
+			<div class="contentList" ng-click="commonContentsList(3)">视频案例</div>
+			<div class="contentList" ng-click="commonContentsList(4)">音频案例</div>
+			<div class="contentList" ng-click="commonContentsList(5)">文本案例</div>
+		</div>
+		
+		<div class=" col-xs-9 col-sm-9 col-md-9 col-lg-9" style="background: white;padding:0px">
+			<div class="typeTitle">案例库分类</div>
+			<div class="typeOne" ng-repeat="x in catagories">
+				<div class="typeFather" >
+					<span style="cursor:pointer;" ng-click="typeOne(x)">{{x.title}}</span>
+				</div>
+				<div class="typeChild">
+					<div ng-repeat="y in x.children" class="col-sm-2 col-md-2 col-lg-2 text-center" style="height:50px;line-height:50px;cursor:pointer;" ng-click="typeOne(y)">{{y.title}}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+.contentListHeader{
+	height:70px;line-height:70px;text-align:center;color:white;font-size:24px;background:#800508
+}
+.contentList{
+	height:60px;line-height:60px;text-align:center;color:white;font-size:20px;background:#303030;
+	border-bottom:1px solid #404040;
+	cursor:pointer;
+}
+.contentListActive{
+	background:#6c0706
+}
+.contentList:hover{
+	background:#6c0706
+}
+.typeTitle{
+	width:100%;
+	height:60px;
+	line-height:60px;
+	text-align:center;
+	color:white;
+	font-size:24px;
+	background:#800508
+}
+.typeOne{
+float:left;min-height:100px;width:100%; border-left: 5px solid #eceae8;margin-top:12px;padding-left: 5px;
+}
+.typeFather{
+	min-height:50px;
+	line-height:50px;
+	background:#eceae8;
+	width:100%;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	padding-left:15px;
+	color:#800508;
+	font-size:18px;
+}
+.typeChild{
+min-height:50px;background:#eceae8;margin-top:1px;width:100%;border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;float: left;
+font-size:16px;
+}
+
+
+</style>
+<script>
+
+	app.controller('typeList', ['$scope','$state', '$modal','$stateParams',function($scope,$state,$modal,$stateParams) {
+		var data = {"id":2};
+		var type="commonContentsTypeCat";
+		
+		applicationService(data,type,function(data) {
+		
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				//$scope.catagories=changeList(thisData, 0);
+				$scope.catagories = thisData;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+		$scope.commonContentsList = function(mun){
+			$state.go("commonApp.commonContentsList",{cid:"",typeId:mun});
+		}
+		$scope.commonContentsType = function(mun){
+			$state.go("commonApp.commonContentsType");
+		}
+		
+		$scope.typeOne = function(x){
+			$state.go("commonApp.commonContentsList",{cid:x.id,typeId:""});
+		}
+		
+		
+		
+	
+	}])
+</script>

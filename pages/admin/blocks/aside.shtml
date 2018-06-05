@@ -1,0 +1,191 @@
+<div class="aside-wrap" style="overflow: auto;" ng-controller="leftMuneList">
+  <!-- if you want to use a custom scroll when aside fixed, use the slimScroll
+    <div class="navi-wrap" ui-jq="slimScroll" ui-options="{height:'100%', size:'8px'}">
+  -->
+  
+
+    <!-- nav -->
+	<nav ui-nav class="navi">
+	 <ul class="nav">
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.contentsList({cid:2})">
+				<span>案例库管理</span>
+			</a>
+		</li>
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.contentsList({cid:1})">
+				<span>资讯管理</span>
+			</a>
+		</li>
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.catagoriesList">
+				<span class="pull-right text-muted">
+				</span>
+				<span>类别管理</span>
+			</a>
+		</li>
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.questionList">
+				<span class="pull-right text-muted">
+				</span>
+				<span>问答管理</span>
+			</a>
+		</li>
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.userList">
+				<span class="pull-right text-muted">
+				</span>
+				<span>用户管理</span>
+			</a>
+		</li>
+		
+		<li ng-class="{'active':activeOrganization}">
+			<a href class="auto"> 
+				<span class="pull-right text-muted">
+					<i class="fa fa-fw fa-angle-right text"></i>
+					<i class="fa fa-fw fa-angle-down text-active"></i>
+				</span>	
+				<span>机构管理</span>
+			</a>
+			<ul class="nav nav-sub dk">
+			  <li ui-sref-active="activeClick">
+				<a ui-sref="app.organizationList">
+				  <span>机构管理</span>
+				</a>
+			  </li>
+			  <li ui-sref-active="activeClick">
+				<a ui-sref="app.schoolCalendarList">
+				  <span>校历管理</span>
+				</a>
+			  </li>
+			  <li ui-sref-active="activeClick">
+				<a ui-sref="app.groupList" >
+				  <span>班级管理</span>
+				</a>
+			  </li>
+			</ul>
+		</li>
+		<li ng-class="{'active':activePermissions}">
+			<a href class="auto"> 
+				<span class="pull-right text-muted">
+					<i class="fa fa-fw fa-angle-right text"></i>
+					<i class="fa fa-fw fa-angle-down text-active"></i>
+				</span>	
+				<span>权限管理</span>
+			</a>
+			<ul class="nav nav-sub dk">
+			  <li ui-sref-active="activeClick">
+				<a ui-sref="app.usersGroup">
+				  <span>用户组管理</span>
+				</a>
+			  </li>
+			  <li ui-sref-active="activeClick">
+				<a ui-sref="app.rolesList">
+				  <span>角色管理</span>
+				</a>
+			  </li>
+			   <li ui-sref-active="activeClick">
+				<a ui-sref="app.permissionsList">
+				  <span>授权管理</span>
+				</a>
+			  </li>
+			</ul>
+		</li>
+		
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.systemWebsite">
+				<span class="pull-right text-muted">
+				</span>
+				<span>字典项管理</span>
+			</a>
+		</li>
+		<li ui-sref-active="activeClick">
+			<a ui-sref="app.logsList">
+				<span class="pull-right text-muted">
+				</span>
+				<span>日志管理</span>
+			</a>
+		</li>
+		
+	
+<nav>
+    <!-- nav -->
+</div>
+
+<style>
+.navi ul.nav li a{
+text-align: left;
+}
+.activeClick{
+background:white;
+}
+</style>
+
+<script>
+
+
+	app.controller('leftMuneList', ['$scope','$state', '$location',function($scope,$state,$location) {
+		
+	
+		
+		
+		var  currentStr= $location.absUrl();
+		if(currentStr.indexOf('usersGroup')>-1 || currentStr.indexOf('rolesList')>-1 || currentStr.indexOf('permissionsList')>-1){
+			$scope.activePermissions=true;
+		}
+		
+		if(currentStr.indexOf('organizationList')>-1 || currentStr.indexOf('schoolCalendarList')>-1 || currentStr.indexOf('groupList')>-1){
+			$scope.activeOrganization=true;
+		}
+		
+		
+		//递归转换数据格式，把集合中list和他的子集合children，合并成一元数组options;
+	/*	function changeList(list, deep) {
+			var options = [];
+			var pre = '|-';
+			var tmp = deep;
+			if(deep > 0) {
+				while(tmp > 0) {
+					pre += '--';
+					tmp--;
+				}
+			}
+			for(var i = 0; i < list.length; i++) {
+				list[i].text = list[i].title;
+				list[i].title = pre + list[i].title;
+				options[options.length] = list[i];
+				if(list[i].children) {
+					var child = changeList(list[i].children, deep + 1);
+					options = options.concat(child);
+				}
+			}
+			return options;
+		}
+		
+	
+			//获取类别的列表
+		var data = {};
+		var type="adminAsideCatList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				
+				$scope.leftMuneList = changeList(thisData, 0)
+				
+				$scope.$apply();
+				
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		$scope.leftMuneOne = function(obj){
+			$state.go("app.contentsList",{"cid":obj.id,'catagoriesName':obj.text});
+		}
+		
+		*/
+		
+	}]);
+</script>

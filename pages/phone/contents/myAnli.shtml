@@ -1,0 +1,152 @@
+﻿<div  style="width:100%;margin:auto;float: left;" ng-controller="homeIndex" id="homeIndex">
+	
+	<div style="width:100%;max-height:600px;float:left;padding-top:10px;overflow-y: auto;" when-scrolled="loadMore()">  
+	<span style="text-align: center;width: 100%;float: left;">{{noNews}}</span>
+		<div class="newOne" ng-class="{newTwo: !$even}" ng-repeat="x in news" ng-click="contentOne(x)">
+			<img class="newOneImg"  src="{{x.titleImg}}" />
+			<h3 class="newOneHeader">{{x.title}}</h3>
+			<div class="newOneTime">
+				<div style="padding:0px;float:left;margin-right:10px;max-width:33.3%">{{x.author}}</div>
+				<div style="padding:0px;float:left;max-width:33.3%;">浏览量{{x.liulanliang}}</div>
+				<div style="padding:0px;float:right;max-width:33.3%">{{x.addtime}}</div>
+			</div>
+		</div>
+
+	</div>
+	
+
+</div>
+
+<style>
+	.typeTestOne{
+		min-width:100px;
+		padding:0px 10px;
+		float:left;
+		line-height:30px;
+	}
+		.newOne{
+		width:100%;
+		height:100px;
+		float:left;
+		border-bottom: 1px solid #bfbfbf;
+		padding:10px 15px;
+		
+	}
+	.newOneImg{
+		width:30%;
+		margin-right:2%;
+		height:100%;
+		float:left;
+		object-fit: cover;
+	}
+	.newOneHeader{
+		width:68%;
+		height:50px;
+		line-height:25px;
+		font-size:16px;
+		font-weight: 580;
+		color:#303030;
+		margin:0px;
+		float:left;
+		float:left;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+	.newOneTime{
+		width:68%;
+		line-height:20px;
+		float:left;
+		padding-right: 6px;
+	}
+</style>
+<script>
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal','$stateParams', function($scope,$state,$timeout,$modal,$stateParams) {
+		
+		//这个控制器中的changeData是转表单数据的方法，在公共js文件中
+		
+		
+		var currentPage =1;
+		$scope.pageSize = 6;
+		$scope.typeId = $stateParams.typeId;
+		getPageList(currentPage);
+		
+		//根据列表
+		function getPageList(currentPage){
+			var cid = "";
+			if(currentPage<1) currentPage=1;
+			var applyData={"cid":cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+			
+			var type= "phoneConMyListList";
+			if($scope.typeId==2){
+				type= "phoneConMyShoucangList";
+			}
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var contentData = thisData.list;
+					$scope.total = thisData.total;
+					var newCon = [];
+					if(contentData=="" || contentData==null){
+						$scope.news =[];
+						$scope.noNews = "我的案例没有数据"
+						$scope.$digest();
+						return;
+					}
+					for(var i = 0; i < contentData.length; i++) {
+						newCon.push(changeData(contentData[i]))
+					}
+					$scope.noNews = "";
+					$scope.news = newCon;
+					$scope.$digest();
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}	
+			},$('body')); 
+		}
+		
+		
+
+
+		
+		
+		$scope.contentOne = function(x){
+			$state.go("phoneApp.phoneDetail",{"id":x.id});
+		}
+		
+		//滚动到底部触发事件  
+              
+            $scope.loadMore = function(){   
+				currentPage++;		
+				$scope.pageSize = currentPage*$scope.pageSize;
+				var bigPage = Math.ceil($scope.total/6);
+				
+				if(currentPage>bigPage){
+					alertHtml($modal,"没有更多信息");
+				}else{
+					getPageList(1,$scope.cid,$scope.listType);
+				}
+					
+				
+				
+				
+            };  
+		
+	}]);
+	
+	 //滚动指令   
+        app.directive('whenScrolled', function() {    
+            return function(scope, elm, attr) {    
+                // 内层DIV的滚动加载    
+                var raw = elm[0];    
+                elm.bind('scroll', function() {   
+                    if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {   
+                        scope.$apply(attr.whenScrolled);    
+                    };    
+                });    
+            };    
+        });
+</script>	

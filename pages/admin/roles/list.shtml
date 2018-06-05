@@ -1,0 +1,324 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">角色管理</h1>
+</div>
+<div class="wrapper-md" id="rolesList" ng-controller="rolesList">
+
+	<div class="panel panel-default">
+		<div class="row wrapper" style="padding:0px;margin:0px">
+			<!-- 左边类别列表  -->
+			<div class="col-sm-2 bg-gray-only" style="border-right:1px solid #cfd6d8">
+				<ul class="list-group no-bg no-borders pull-in">
+					<div class="liTitle">角色列表</div>
+					<li ng-repeat="x in sysRoles" class="list-group-item" style="border-bottom:1px solid #cfd6d8;padding: 0px;min-height: 40px;line-height: 40px;">
+						<div style="word-wrap: break-word;border-bottom:1px solid #cfd6d8;height:40px;width:100%;display:block;padding-left: 20px;">{{x.title}}</div>
+						
+						<ul class="list-group no-bg no-borders pull-in">
+							<li ng-click="getRolesInfo({{y.id}},{{x.id}},$event)"  ng-repeat="y in x.data" class="list-group-item" style="border-bottom:1px solid #cfd6d8;min-height: 40px;line-height: 40px;">
+								{{y.title}}
+							</li>
+							<li class="list-group-item" style="border-bottom:1px solid #cfd6d8;background: #c4c4c4;">
+								<div ng-click="addRoles({{x.id}})" style="cursor:pointer;">添加角色</div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<!-- 右边  -->
+			<div class="col-sm-10">
+
+				<!-- 右边头部  -->
+				<div class="row bg-gray-only" style="padding: 5px 0px;">
+					<div class="col-sm-6" style="line-height:30px">
+						角色设置
+					</div>
+					<div class="col-sm-6 text-right">
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="delete()">删除</button>
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="sort(0)">上移</button>
+						<button class="btn btn-sm btn-primary" ng-click="sort(1)">下移</button>
+					</div>
+				</div>
+				<!-- 右边表单  -->
+				<div class="row">
+					<form role="form" style="width:90%;margin:30px auto 30px 5%;line-height30px;">
+
+						
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px">
+							<label class="col-sm-2 control-label text-right">角色名称</label>
+							<div class="col-sm-7">
+								<input ng-model="title" style="width:100%;height:30px;"/>
+								
+							</div>
+							<span class="col-sm-3" style="color:red">{{ titleDes }}</span>
+						</div>
+						
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px;display:-moz-box;display:-webkit-box;display:box;">
+							<label class="col-sm-2 control-label text-right">操作权限</label>
+							<div class="col-sm-9 rolesList">
+								<div style="width:100%;">
+									<span>{{noOrg}}</span>
+									<div class="groupModalLi" ng-repeat="x  in modals">
+										<div class="groupText" ng-click="groupTextClick($event)">{{x.title}}</div>
+										<div class="rolesLi">
+											<label class="i-checks m-b-none" ng-repeat="y  in x.data" title="{{y.title}}">
+												<input type="checkbox" id="roles{{y.id}}" ng-click="checkboxClick()" vid="{{y.id}}"><i></i>{{y.title}}
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+
+						<button class="btn btn-sm btn-primary" style="margin-left:155px" ng-click="submitFrom()">提交</button>
+					</form>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+
+.liTitle{
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    background: #f6f8f8;
+	padding-left:10px;
+}
+
+.pull-in .pull-in{
+	margin:0px;
+}
+.pull-in .pull-in .list-group-item{
+	padding:0px;
+	padding-left:30px;
+	border-bottom:1px solid #cfd6d8;
+	min-height: 40px;
+	line-height: 40px;
+	cursor:pointer;
+}
+.rolesList label{
+		width:25%;
+	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+	line-height:30px;
+}
+.groupText{
+	line-height:30px;
+	padding-left:3px;
+	height:30px;
+	background:#F2F2F2;
+	margin-bottom: 10px;
+}
+.rolesLi{
+	line-height:30px;
+	padding-left:10px;
+}
+.list-group.no-bg .activeMune{
+	background:#bdb4b4;
+}
+
+
+</style>
+
+<script>
+
+app.controller('rolesList', ['$scope','$modal', '$state', function($scope,$modal, $state) {
+		$scope.id ="";
+		
+		
+		
+		//根据系统角色获取角色列表
+		var data = {};
+		var type="adminRolesListBySys";
+		applicationService(data,type,function(data) {
+			var thisDate = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.sysRoles=thisDate;
+				$scope.sid = $scope.sysRoles[0].id;
+				$scope.$apply();
+			}else{
+				alertHtml($modal,"获取角色列表失败，失败原因："+statusText);
+			}
+		},$("body"))
+		
+		//根据模块标题分组显示权限
+		var data = {};
+		var type="adminRolesListOfModule";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				
+				$scope.modals = thisData;
+				if($scope.modals.length=="0"){
+					
+					$scope.noOrg = "无操作权限。";
+					
+				}
+				$scope.$apply();	
+			}else{
+				alertHtml($modal,"获取权限失败，原因："+statusText)
+			}
+		},$("body"))
+		
+		//添加角色的按钮事件
+		$scope.addRoles = function(id){
+			$scope.title="";
+			$(".rolesList input").prop("checked",false);
+			$scope.sid = id;
+			$scope.id="";
+			$("li").removeClass('activeMune');
+		}
+		
+		//获取角色详情
+		$scope.getRolesInfo = function(id,sid,$event){
+			
+			$("li").removeClass('activeMune');
+			$($event.target).addClass('activeMune');
+			
+			
+			var type="adminRolesGet";
+			var data = {"id":id};
+			
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					
+					$scope.id = thisDate.id;
+					$scope.sid = thisDate.sid;
+					$scope.title=thisDate.title;
+					$(".rolesList input").prop("checked",false);
+					for(var i=0;i<thisDate.permissionData.length;i++){
+						$("#roles"+thisDate.permissionData[i].permissionid).prop("checked",true);
+					}
+					$scope.$apply();
+				}else{
+					alertHtml($modal,"获取角色详情失败，原因："+statusText)
+				}
+			},$("body"))
+			
+			
+		}
+		
+		//提交表单内容，添加或者修改用户
+		$scope.submitFrom = function(){
+			
+			$scope.titleDes ="";
+			if($scope.title=="" || $scope.title==null){
+				$scope.titleDes = "角色名称不能为空";
+				return;
+			}
+			
+			
+			var type="adminRolesEdit";
+			var data = {
+				"id":$scope.id,
+				"sid":$scope.sid,
+				"title":$scope.title,
+				"permissionData":getCheckedOfList(),
+			};
+			
+			
+			if($scope.id==null || $scope.id==""){
+				type="adminRolesAdd";
+				data = {
+					"sid":$scope.sid,
+					"title":$scope.title,
+					"permissionData":getCheckedOfList(),
+				};
+			}
+			
+			//提交角色信息
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"提交成功",function(){
+						$state.reload('app.rolesList');
+					});
+					
+				}else{
+					alertHtml($modal,"提交失败，原因："+statusText);
+				}
+			},$("body"))	
+		}
+		
+		$scope.groupTextClick = function($event){
+			var type = $($event.target).next().css("display");
+			if(type=="block"){
+				$($event.target).next().css("display",'none');
+			}else{
+				$($event.target).next().css("display",'block');
+			}
+		
+		}
+		
+		//删除事件
+		$scope.delete=function(){
+			if($scope.id==null || $scope.id==""){
+				alertHtml($modal,"请选择角色");
+				return ;
+			}
+			deleteHtml($modal,"确定删除该角色吗?",deleteGroup,$scope.id);
+			function deleteGroup(id){
+				//删除用户组
+				var type="adminRolesDelete";
+				var data = {"id":id}
+				
+				applicationService(data,type,function(data) {
+					var thisDate = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							$state.reload('app.rolesList');
+						});
+						
+					}else{
+						alertHtml($modal,"删除失败，原因："+statusText);
+					}
+				},$("body"))
+			}
+		}
+		
+		//上下移排序事件
+		$scope.sort = function(sorkType){
+			
+			//上下移角色
+			var type="adminRolesSort";
+			
+			if($scope.id==null || $scope.id==""){
+				alertHtml($modal,"请选择角色");
+				return ;
+			}
+			var data = {"id":$scope.id,"type":sorkType};
+			
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功",function(){
+						$state.reload('app.rolesList');
+					});
+					
+				}else{
+					alertHtml($modal,"操作失败，原因："+statusText);
+				}
+			},$("body"))
+		}
+		
+
+	}]);
+</script>

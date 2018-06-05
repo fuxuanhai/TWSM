@@ -1,0 +1,368 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">权限列表</h1>
+</div>
+<div class="wrapper-md" id="permissionList" ng-controller="permissionList">
+
+	<div class="panel panel-default">
+		<div class="row wrapper">
+			<div class="col-sm-10 col-xs-12">
+				<div class="col-sm-1 col-xs-3" style="line-height:30px;padding: 0px 0px 0px;margin-bottom:10px">系统角色</div>
+				<div style="display:inline-block;padding-left:0px;margin-bottom:10px" class="sysRoles col-sm-3 col-xs-9">
+					<ui-select ng-model="sysRoles.selected" theme="bootstrap" >
+						<ui-select-match >{{$select.selected.name}}</ui-select-match>
+						<ui-select-choices repeat="item in sysRoles | filter: $select.search">
+							<div ng-bind-html="item.name | highlight: $select.search"></div>
+						</ui-select-choices>
+					</ui-select>
+				</div>
+				<div class="col-sm-1 col-xs-3" style="line-height:30px;padding: 0px 0px 0px;margin-bottom:10px">模块标题</div>
+				<div style="display:inline-block;padding-left:0px;margin-bottom:10px" class="modules col-sm-3 col-xs-9">
+					<select id="moduleSelect" class="form-control col-sm-5" ng-model="moduleSelect">
+						<option value="全部">全部</option>
+						<option value="{{ x }}" ng-repeat=" x in modules" obj="{{ x }}">{{ x}}</option>
+					</select>
+				</div>
+				<div class="col-sm-1 col-xs-3" style="line-height:30px;padding: 0px 0px 0px;margin-bottom:10px">关键词</div>
+				<input style="height:30px;margin-bottom:10px" type="text" ng-model="searchTest" class="col-sm-2 col-xs-7">
+				<span class="input-group-btn col-sm-1 col-xs-2" style="margin-bottom:10px">
+					<button class="btn btn-sm btn-default" style="height:30px;" ng-click="searchGo()" type="button">搜索</button>
+				</span>
+			</div>
+			<div class="col-sm-2 m-b-xs text-right">
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="add()">添加</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="delete()">删除</button>
+			</div>
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped b-t b-light">
+				<thead>
+					<tr>
+						<th style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+							 </label>
+						</th>
+						<th>权限标题</th>
+						<th>模块标题</th>
+						<th>权限描述</th>
+						<th>表达方式</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x  in permissions">
+						<td style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+							</label>
+						</td>
+						<td ng-click="update({{x}})" style="cursor:pointer;">{{ x.title }}</td>
+						<td>{{ x.module }}</td>
+						<td>{{ x.description }}</td>
+						<td>{{ x.expression }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+			<div class="row">
+				<div class="col-sm-12 text-center">
+					<ul class="pagination pagination-sm m-t-none m-b-none">
+						<li>
+							<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+						</li>
+
+						<li ng-repeat="x  in pages">
+							<a href ng-click="pageClick({{x}})">{{x}}</a>
+						</li>
+
+						<li>
+							<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+						</li>
+						<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+					</ul>
+				</div>
+
+			</div>
+		</footer>
+	</div>
+</div>
+
+<style>
+
+.sysRoles button{
+	height:30px;
+}
+#xlf{
+	width: 50px;
+	height: 30px;
+	filter: alpha(opacity=0);
+	-moz-opacity: 0;
+	-khtml-opacity: 0;
+	opacity: 0;
+	margin-left: -60px;
+	margin-right: 7px;
+	margin-top: -6px;
+	display:inline;
+	cursor:pointer;
+	padding-left: 34px;
+}
+</style>
+
+<script>
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('permissionList', ['$scope','$state','$modal', function($scope,$state,$modal) {
+		$scope.moduleSelect ="全部";
+		$scope.pagesize= pageSize;
+		var currentPage=1;
+		
+		//获取系统角色
+		var data = {};
+		var type="adminPermissionsListSysRole";
+		applicationService(data,type,function(data) {
+			dataToken = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.sysRoles = dataToken;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取系统角色失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		
+		//获取模块标题列表
+		var data = {};
+		var type="adminPermissionsListGetModuleTitle";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.modules = thisData;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取模块标题失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		//获取权限列表
+		var data = {
+			"sid":'',
+			"module":'',
+			"keyword":'',
+			"pn":1,
+			"pc":$scope.pagesize,
+		};
+		getList(data);
+		
+		function getList(data){
+			var type="adminPermissionsList";
+			applicationService(data,type,function(data) {
+			
+				var thisData = data.data;
+				
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var count = thisData.count;
+					$scope.permissions=thisData.data;
+					page($scope, count, currentPage,$scope.pagesize);
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取权限列表失败,原因："+statusText);
+				}
+			},$("body"));
+		}
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var id = ""
+			if($scope.moduleSelect=="全部"){
+				moduleSelect="";
+			}
+			
+			if($scope.sysRoles.selected!="" && $scope.sysRoles.selected!=null){
+				id = $scope.sysRoles.selected.id;
+			}
+			var data = {
+				"sid":id,
+				"module":moduleSelect,
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+		}
+		
+
+		//搜索事件
+		$scope.searchGo = function() {
+			currentPage=1;
+			var moduleSelect = $scope.moduleSelect;
+			var id = ""
+			if($scope.moduleSelect=="全部"){
+				moduleSelect="";
+			}
+			
+			if($scope.sysRoles.selected!="" && $scope.sysRoles.selected!=null){
+				id = $scope.sysRoles.selected.id;
+			}
+			
+			currentPage = 1;
+			var data = {
+				"sid":id,
+				"module":moduleSelect,
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+
+		}
+		//添加
+		$scope.add = function() {
+			var url = cliURLPage+"admin/permissions/set.shtml";
+			var data = {};
+			pageRequest({
+				url: url,
+				data: data,
+				callback: function(data) {
+					var modalInstance = $modal.open({
+					 //  templateUrl: 'myModalContent.html',
+						template:data,
+						controller: 'permissionsSet',
+						size: "lg",
+						resolve: {
+						  sysRoles: function () {
+							return $scope.sysRoles;
+						  },
+						  modules: function () {
+							return $scope.modules;
+						  },
+						  updateObj: function () {
+							return "";
+						  },
+						}
+					});
+				}
+			});	
+		}
+		
+		//修改
+		$scope.update = function(Obj) {
+			$scope.updateObj = Obj;
+			var url = cliURLPage+"admin/permissions/set.shtml";
+			var data = {};
+			pageRequest({
+				url: url,
+				data: data,
+				callback: function(data) {
+					var modalInstance = $modal.open({
+					 //  templateUrl: 'myModalContent.html',
+						template:data,
+						controller: 'permissionsSet',
+						size: "lg",
+						resolve: {
+						  sysRoles: function () {
+							return $scope.sysRoles;
+						  },
+						  modules: function () {
+							return $scope.modules;
+						  },
+						  updateObj: function () {
+							return $scope.updateObj;
+						  },
+						}
+					});
+				}
+			});
+		}
+
+		//全选事件
+		$scope.checkboxClick = function() {
+
+			if($scope.checkAll == false) {
+				$(".i-checks input[type='checkbox']:checked").prop("checked", false)
+			} else {
+				$(".i-checks input[type='checkbox']").prop("checked", true)
+			}
+		}
+
+		//删除
+		$scope.delete = function() {
+			deleteHtml($modal,"确定删除信息吗?",deletePermissions);
+			function deletePermissions(){
+				var id = getCheckedOfList();
+				
+				if(id.length < 1) {
+					alertHtml($modal,"请至少选中一条信息删除");
+					return ;
+				}
+				
+				var data = {
+					"id": id,
+				};
+				var type="adminPermissionsListDelete";
+				applicationService(data,type,function(data) {
+					userToken = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							
+							$state.reload('app.permissionsList');
+						});
+						
+					} else {
+						alertHtml($modal,"删除失败,原因："+statusText);
+					}
+				},$("body"));
+			}
+		}
+		
+	}]);
+	
+	
+	app.controller('permissionsSet', ['$scope','$state','$modalInstance','$timeout', '$modal','sysRoles','modules','updateObj', function($scope,$state, $modalInstance,$timeout,$modal,sysRoles,modules,updateObj) {
+		
+		
+		$scope.updateObj =updateObj;
+		$scope.sysRoles = sysRoles;
+		$scope.modules = modules;
+		$scope.modalInstance = $modalInstance
+	
+	}]);
+		
+	
+	
+</script>

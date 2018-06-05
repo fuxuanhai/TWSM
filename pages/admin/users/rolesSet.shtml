@@ -1,0 +1,163 @@
+<div class="modal-body wrapper-lg" ng-controller="rolesSetChild">
+	<div class="panel panel-default" id="rolesContent">
+        <div class="panel-heading font-bold">角色设置</div>
+        <div class="panel-body">
+			<div style="height:300px;overflow:auto">
+			
+				<div class="groupModalLi" ng-repeat="x  in group">
+					<div class="groupText" gid="{{x.id}}" >{{x.title}}</div>
+					<div class="rolesList">
+						{{x.roles.length?"":"此用户组没有角色"}}
+						<label class="i-checks m-b-none" ng-repeat="y  in x.roles" title="{{y.title}}">
+							<input type="checkbox" class="roles{{y.id}}" ng-click="checkboxClick()" rid="{{y.id}}"><i></i>{{y.title}}
+						</label>
+					</div>
+				</div>
+				
+			</div>
+			<div class="text-center">
+				<button  style="margin-right:100px" type="submit" class="btn btn-sm btn-primary" ng-click="ok()">提交</button>
+				<button  type="submit" class="btn btn-sm btn-primary" ng-click="back()">关闭</button>
+			</div>
+			
+		</div>
+      </div>
+</div>
+<style>
+#rolesContent{
+border: 0px;
+}
+.modal-lg{
+width: 600px;
+}
+.wrapper-lg,.modal-body{
+	padding:0px;
+}
+.panel{
+    margin-bottom:0px;
+}
+.pull-in{
+	margin:0px;
+	width:100%;
+}
+.groupModalLi{
+	width:100%;
+	line-height:30px;
+}
+.groupText{
+	width:100%;
+	height:30px;
+	margin-bottom: 10px;
+}
+.rolesList{
+	width:95%;
+	margin-left:5%;
+	min-height:30px;
+}
+.rolesList label{
+	width:25%;
+	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+}
+</style>	
+	
+<script>
+//角色设置的弹层的控制器
+	app.controller('rolesSetChild', ['$scope', '$modal', function($scope, $modal) {
+		$scope.user =$scope.$parent.user;
+		$modalInstance=$scope.$parent.modalInstance;
+		var sysRolesCheck = $scope.$parent.sysRolesCheck
+		
+		var groupIds =[];
+		var groupObj =[];
+		for(var i=0;i<sysRolesCheck.length;i++){
+			groupObj = groupObj.concat(sysRolesCheck[i].userGroupsCheck);
+			for(j=0;j<sysRolesCheck[i].userGroupsCheck.length;j++){
+				groupIds.push(sysRolesCheck[i].userGroupsCheck[j].id);
+			}
+		}
+		
+		$scope.groupIds = groupIds;
+		//获取用户组的角色
+		var data = {
+			"groupData": groupIds,
+		};
+		var type="adminUsersRolesSetGet";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status==1){
+				
+				for(var i=0;i<groupObj.length;i++){
+					groupObj[i].roles=[];
+					for(var j=0;j<thisData.length;j++){
+						if(groupObj[i].id==thisData[j].groupid){
+							groupObj[i].roles.push(thisData[j])
+						}
+					}
+				};
+				$scope.group = groupObj;
+				$scope.$apply();
+				var data = {
+					"uid": $scope.user.id,
+				};
+				var type="adminUsersRolesSetListByUid";
+				applicationService(data,type,function(data) {
+					var thisData = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status==1){
+						for(var i=0;i<thisData.length;i++){
+								$(".roles"+thisData[i].id).prop("checked", true);
+							}
+					}else{
+						alertHtml($modal,"获取用户的角色失败，原因为："+statusText)
+					}
+				},$("#rolesContent"))
+			}else{
+				alertHtml($modal,"获取用户组角色失败，原因为："+statusText)
+			}
+		},$("#rolesContent"))
+		
+		//提交事件
+		$scope.ok = function () {
+			$modalInstance.dismiss('cancel');
+			
+			var roleId = [];
+			var objArr = $(".rolesList .i-checks input[type='checkbox']:checked");
+			for(var i=0;i<objArr.length;i++){
+				if(objArr.eq(i).attr('rid') !=null && objArr.eq(i).attr('rid') !=""){
+					roleId[roleId.length]=  objArr.eq(i).attr('rid'); 
+				}	
+			};
+			
+			
+			var data = {
+					"uid":$scope.user.id,
+					"groupData":$scope.groupIds,
+					"roleData":roleId,
+				};
+				var type="adminUsersRolesSetRolesSave";
+				applicationService(data,type,function(data) {
+					var thisData = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status==1){
+						alertHtml($modal,"提交成功")
+					}else{
+						alertHtml($modal,"提价失败，原因为："+statusText)
+					}
+				},$("#rolesContent"))
+			
+			
+		};
+		
+		//关闭事件
+		$scope.back = function () {
+			$modalInstance.dismiss('cancel');
+		};
+					
+	}]);
+</script>

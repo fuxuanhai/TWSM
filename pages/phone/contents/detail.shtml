@@ -1,0 +1,294 @@
+﻿<div id="detail" ng-controller="detail" style="width:96%;margin:auto">
+	<div class="headerTitle">{{content.title}}</div>
+	<div style="width:100%;height:auto;text-align:left;line-height:30px;float:left;margin-top: 10px;">
+		<div class="spanText">案例编号:{{content.number}}</div>
+		<div class="spanText">作者:{{content.author}}</div>
+		<div class="spanText">分类:{{content.type}}</div>
+		<div class="spanText">关键词:{{content.key}}</div>
+		<div class="spanText">{{content.addTime}}</div>
+
+
+	</div>
+	<div style="width:100%;height:auto;float:left;text-align:center;margin-top:10px">
+		<div class="spanText"    onclick="fxhfayan()" id="fayan" style="background: #800408;color: white;padding: 5px 10px;float: left;margin-left: 10px;">语音发言</div>
+		<!-- <div class="spanText" id="fayan" onclick="fxhfayan()" style="background: #800408;color: white;padding: 5px 10px;float: left;margin-left: 10px;">语音发言</div> -->
+		<div class="spanText" style="padding: 5px 10px;float: right;display:none">浏览量:{{content.liulanliang}}</div>
+	</div>
+	<div style="width:100%;height:auto;float:left;margin-top:20px;font-size:1.2rem">
+		摘要：
+	</div>
+	<div style="width:100%;height:auto;float:left;margin-top:10px;text-indent:2rem">
+		{{content.anliAbstract}}
+	</div>
+	<div style="width:100%;height:auto;float:left;margin-top:20px;font-size:1.2rem">
+		正文：
+	</div>
+	<div ng-bind-html="content.htmlVariable" style="width:100%;height:auto;float:left;margin-top:10px;text-indent:2rem">
+
+	</div>
+	<div style="width:100%;height:auto;float:left;margin-top:20px;font-size:1.2rem">
+		附件：
+	</div>
+	<div id="#fileList" style="width:100%;height:auto;float:left;padding:10px 20px">
+		<a style="text-decoration: underline;color:red;margin-right:20px;" href="{{content.zeroURL}}admin/file/download?id={{x.md5}}"
+		    ng-repeat="x in content.fujianArr">{{x.fileName}}</a>
+	</div>
+	<div style="width:100%;height:auto;float:left;text-align:center">
+		<img ng-click="shoucang()" src="{{shoucangUrl}}" style="height:50px;margin:20px" />
+		<img ng-click="fenxiang()" src="../contents/imgs/fenxiang.png" style="height:50px;margin:20px" />
+	</div>
+</div>
+<style>
+	.headerTitle {
+		width: 100%;
+		min-height: 50px;
+		line-height: 50px;
+		border-bottom: 1px solid #bfbfbf;
+		text-align: center;
+		font-size: 1.5rem;
+		color: #800508;
+		float: left;
+	}
+
+	.spanText {
+		display: inline-block;
+		padding: 0px 10px;
+	}
+</style>
+
+<script>
+	var $modalOBj = ""
+	app.controller('detail', ['$scope', '$state', '$modal', '$stateParams', function ($scope, $state, $modal, $stateParams) {
+		$modalOBj = $modal;
+
+		$scope.id = $stateParams.id;
+		$scope.cid = $stateParams.cid;
+		$scope.pageSize = pageSize;
+		var currentPage = 1;
+		$.cookie("anliId", $scope.id, {
+			path: '/'
+		});
+
+
+		var dataShoucang = {
+			"id": $scope.id
+		}
+		var typeShoucang = "phoneContentsDetailGetCollect";
+		applicationService(dataShoucang, typeShoucang, function (data) {
+			var status = data.status;
+			var statusText = data.statusText;
+			if (status == 1) {
+				if (data.data.total == 1) {
+					$scope.shoucangUrl = "../contents/imgs/quxiaoShoucang.png";
+					$scope.isShoucang = false; //该文章是否收藏，true表示已经收藏，false还没收藏
+				} else {
+					$scope.isShoucang = true; //该文章是否收藏，true表示收藏
+					$scope.shoucangUrl = "../contents/imgs/shoucang.png";
+				}
+				$scope.$apply();
+				consoleLog("获取收藏成功");
+			} else {
+				consoleLog("获取收藏失败");
+			}
+		}, $('body'));
+
+
+		//获取类别的列表
+		var data = {};
+		var type = "phoneContentsDetailCat";
+		applicationService(data, type, function (data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if (status == 1) {
+				$scope.types = changeList(thisData, 0);
+				var applyData = {
+					"id": $scope.id
+				};
+				var type = "phoneContentsDetailGet";
+				applicationService(applyData, type, function (data) {
+					var thisData = data.data[0];
+					$scope.thisData = thisData;
+					var status = data.status;
+					var statusText = data.statusText;
+					if (status == 1) {
+						$scope.content = changeData(thisData, $scope.types);
+						$scope.content.zeroURL = zeroURL;
+						$scope.$apply();
+						var applyData1 = {};
+						applyData1.id = thisData.id;
+						applyData1.cid = [thisData.cid];
+						applyData1.content = eval(thisData.content.value);
+
+						if (applyData1.content[6].value == "" || applyData1.content[6].value == null) {
+							applyData1.content[6].value = 0;
+						}
+						applyData1.content[6].value = parseInt(applyData1.content[6].value) + 1;
+
+						var typeName1 = "phoneContentsDetailEdit";
+						applicationService(applyData1, typeName1, function (data) {
+							var status = data.status;
+							var statusText = data.statusText;
+							if (status == 1) {
+								consoleLog("添加浏览量成功")
+
+							} else {
+								consoleLog("添加浏览量失败")
+							}
+						}, $('body'));
+
+
+					} else {
+						alertHtml($modal, "获取内容详情失败,原因：" + statusText);
+					}
+				}, $('body'));
+				$scope.$apply();
+			} else {
+				alertHtml($modal, "获取类别列表失败,原因：" + statusText);
+			}
+		}, $('body'))
+
+
+
+		/*	$('#fayan').mousedown(function(){
+
+				var url = cliURL+"pages/phone/contents/fayan.shtml";
+				var data = {};
+				pageRequest({
+					url: url,
+					data: data,
+					callback: function(data) {
+						
+						
+						
+						var modalInstance = $modal.open({
+							template:data,
+							controller: 'erweima',
+							size: "sm",
+							resolve: {
+								fenxiangId: function () {
+										return $scope.id;
+									  },
+									  
+								}
+						});
+						$('#fayan').mouseup(function(){
+							$modalInstance.close();
+							
+						});
+					}
+				});	
+			});*/
+
+		$scope.fayan = function () {
+			//案例中的语音发言按钮后调用录音组件进行语音输入
+			window.android.startVoiceComment();
+			// window.webkit.messageHandlers.startVoiceComment.postMessage(null);
+
+
+			/*	var comment=["案","案例","案例中","案例中的发","案例中的发言",];
+
+				for(var i=0;i<comment.length;i++){
+					
+					commitVoiceComment(comment[i]);		//过程模拟;
+					if(i==4){
+						commitVoiceCommentEnd("案例中的发言3");
+					}
+				}*/
+			//返回结果的调用;
+			//commitVoiceCommentEnd("发言文字");
+		};
+
+
+
+		$scope.shoucang = function () {
+			var applyData = {
+				"content_id": [$scope.id]
+			};
+
+			var type = "phoneContentsDetailCollect";
+			$scope.shoucangReture = "收藏";
+			if (!$scope.isShoucang) {
+				type = "phoneContentsDetailDeleteCollect";
+				applyData = {
+					"id": [$scope.id]
+				};
+				$scope.shoucangReture = "取消收藏";
+			}
+			applicationService(applyData, type, function (data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if (status == 1) {
+					alertHtml($modal, $scope.shoucangReture + "成功", function () {
+
+
+						if ($scope.isShoucang) {
+							$scope.isShoucang = false; //该文章是否收藏，true表示收藏
+							$scope.shoucangUrl = "../contents/imgs/quxiaoShoucang.png";
+
+						} else {
+							$scope.isShoucang = true;
+							$scope.shoucangUrl = "../contents/imgs/shoucang.png";
+
+						}
+
+
+					});
+				} else {
+					alertHtml($modal, $scope.shoucangReture + "失败,原因：" + statusText);
+				}
+			}, $('body'));
+		}
+
+		$scope.fenxiang = function () {
+
+			var url = cliURL + "pages/phone/contents/erweima.shtml";
+			var data = {};
+			pageRequest({
+				url: url,
+				data: data,
+				callback: function (data) {
+
+					var modalInstance = $modal.open({
+						template: data,
+						controller: 'erweima',
+						size: "sm",
+						resolve: {
+							fenxiangId: function () {
+								return $scope.id;
+							},
+
+						}
+					});
+				}
+			});
+
+			//var str= cliURL + "index.shtml";
+			//	window.location.href = str;
+			consoleLog("分享了一个案例，ID为" + $scope.id)
+		}
+	}])
+
+	app.controller('erweima', ['$scope', '$timeout', '$modalInstance', 'fenxiangId', function ($scope, $timeout,
+		$modalInstance, fenxiangId) {
+
+		$scope.fenxiangId = fenxiangId;
+		$scope.modalInstance = $modalInstance
+
+	}]);
+
+
+
+		function fxhfayan() {
+		console.log(navigator.userAgent);
+		if ((navigator.userAgent.indexOf('Android')  !=  -1))  {    
+			console.log("安卓");     
+			window.android.startVoiceComment();  
+		} else if ((navigator.userAgent.indexOf('iPhone')  !=  -1)) {
+			console.log("苹果");          
+			window.webkit.messageHandlers.startVoiceComment.postMessage(null);
+		}
+
+	}
+</script>

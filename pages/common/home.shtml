@@ -1,0 +1,446 @@
+﻿<div  style="max-width:1100px;width:100%;margin:auto;" ng-controller="homeIndex" id="homeIndex">
+	<div class="newTitle">
+		<div class="newTitleLeft">最新资讯</div>
+		<div class="newTitleRight text-right fxhmore" style="display:none">更多>></div>
+	</div>
+	<div style="width:100%;max-height:450px;float:left">
+		<div class="newOne" ng-class="{newTwo: !$even}" ng-repeat="x in news" ng-click="contentOne(x)" style="cursor:pointer">
+			<img class="newOneImg"  src="{{x.titleImg}}" />
+			<h3 class="newOneHeader">{{x.title}}</h3>
+			<div class="newOneTest">{{x.anliAbstract}}</div>
+			<div class="newOneTime">{{x.addtime}}</div>
+		</div>
+		
+		
+	</div>
+	
+	<div class="newTitle">
+		<div class="newTitleLeft">通知公告</div>
+		<div class="newTitleRight text-right fxhmore" style="display:none">更多>></div>
+	</div>
+	<div style="width:100%;height:306px;padding-top:26px;float:left">
+		<div class="fristTongzhi" ng-click="contentOneID()" style="cursor:pointer">
+			<img class="fristTongzhiImg" src="{{Tongzhi1.titleImg}}"/>
+			<div class="fristTongzhiTest">{{Tongzhi1.title}}</div>
+		</div>
+		<div class="UlTongzhi">
+			<ul>
+				<li ng-repeat="x in Tongzhi" ng-click="contentOne(x)" style="cursor:pointer">
+					<div class="UlTongzhiLiTest" style="">{{x.title}}</div>
+					<div class="UlTongzhiLiTime">{{x.addtime}}</div>
+				</li>
+			</ul>
+		</div>
+		
+	</div>
+	<div style="width:100%;height:486px;margin-bottom:30px;float:left">
+		<div style="width:49%;height:436px;float:left">
+			<div class="newTitle">
+				<div class="newTitleLeft">最新案例</div>
+				<div class="newTitleRight text-right fxhmore" ng-click="commonContentsList()">更多>></div>
+			</div>
+			<div style="width:100%;height:370px;margin-top:26px;float:left">
+				<div class="anliOne" ng-repeat="x in zuixinAnli" ng-click="contentOne(x)" style="cursor:pointer">
+					<img class="anliOneImg" src="{{x.titleImg}}" />
+					<div class="anliOneRight">
+						<h3 class="anliOneHeader">{{x.title}}</h3>
+						<div class="anliOneTestLeft">作者姓名:{{x.author}}</div>
+						<!-- <div class="anliOneTestRight">浏览量{{x.liulanliang}}</div> -->
+						<div class="anliOneTime">{{x.addtime}}</div>
+					</div>
+				</div>
+				
+			
+			</div>
+		</div>
+		
+		<div style="width:49%;margin-left:2%;height:436px;float:left">
+			<div class="newTitle">
+				<div class="newTitleLeft">热门案例</div>
+				<div class="newTitleRight text-right fxhmore" ng-click="commonContentsList(1)">更多>></div>
+			</div>
+			<div style="width:100%;height:370px;margin-top:26px;float:left">
+				<div class="anliOne" ng-repeat="x in remenAnli" ng-click="contentOne(x)" style="cursor:pointer">
+					<img class="anliOneImg" src="{{x.titleImg}}" />
+					<div class="anliOneRight">
+						<h3 class="anliOneHeader">{{x.title}}</h3>
+						<div class="anliOneTestLeft">作者姓名:{{x.author}}</div>
+						<!-- <div class="anliOneTestRight">浏览量{{x.liulanliang}}</div> -->
+						<div class="anliOneTime">{{x.addtime}}</div>
+					</div>
+				</div>
+				
+			
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<style>
+	.newTitle{
+		width:100%;height:40px;font-size:24px;color:#6c0706;
+		
+		margin-top:50px;
+		float:left;
+	}
+	.newTitleLeft{
+		width:50%;
+		height:35px;line-height:35px;padding-left: 5px;
+		float:left;
+	}
+	.newTitleRight{
+		width:50%;
+		font-size:20px;height:35px;
+		line-height:35px !important;
+		margin-left: -15px;
+		float:left;
+		cursor:pointer;
+	}
+	.fxhmore{
+		font:  small-caps bold 14px/24px "microsoft yahei"
+	}
+	.newTitle:before{
+		height: 35px;
+		content: "";
+		border: 3px solid #6c0706;
+		float: left;
+	}
+	.newOne{
+		width:49%;
+		/* min-width:400px; */
+		padding:5px;
+		height:124px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+		float:left;
+		margin-top:26px;
+		-moz-box-shadow: 2px 2px 8px #ccc; /* 老的 Firefox */
+		/* box-shadow: 2px 2px 8px #ccc; */
+	}
+	.newTwo{
+		margin-left:2%;
+	}
+	.newOneImg{
+		width:30%;
+		margin-right:2%;
+		height:100%;
+		float:left;
+		object-fit: cover;
+	}
+	.newOneHeader{
+		width:68%;
+		height:40px;
+		line-height:40px;
+		font-size:16px;
+		font-weight: 580;
+		color:#303030;
+		margin:0px;
+		float:left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	.newOneTest{
+		width:68%;
+		height:50px;
+		line-height:20px;
+		font-size:12px;
+		color:#808080;
+		margin:0px;
+		float:left;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+	.newOneTime{
+		width:68%;
+		line-height:20px;
+		/* text-align:right; */
+		float:left;
+		padding-right: 6px;
+	}
+	.fristTongzhi{
+		width:40%;
+		padding:5px;
+		height:280px;
+		border-radius: 5px;
+		border: 1px solid #6c0706;
+		float:left;
+	}
+	.fristTongzhiImg{
+		width:100%;
+		height:240px;
+		float:left;
+	}
+	.fristTongzhiTest{
+		width:100%;
+		height:40px;
+		line-height:40px;
+		float:left;
+		font-size:16px;
+		color:#800408;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	.UlTongzhi{
+		width:58%;
+		margin-left:2%;
+		padding:20px;
+		height:280px;
+		border-radius: 5px;
+		border: 1px solid #6c0706;
+		float:left;
+	}
+	.UlTongzhi ul{
+		padding-left: 20px;
+	}
+	.UlTongzhi ul li{
+		font-size:14px;
+		height:30px;
+		line-height:30px;
+		list-style:none;
+	}
+	.UlTongzhiLiTest{
+		float:left;max-width:85%;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	.UlTongzhiLiTime{
+		float:right;max-width:15%;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	.anliOne{
+		width:100%;
+		padding:5px;
+		height:85px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+		float:left;
+		margin-bottom:10px;
+		/* -moz-box-shadow: 2px 2px 8px #ccc; */
+		 /* 老的 Firefox */
+		/* box-shadow: 2px 2px 8px #ccc; */
+	}
+	.anliOneImg{
+		width:20%;
+		margin-right:2%;
+		height:100%;
+		float:left;
+		object-fit:cover;
+	}
+	.anliOneRight{
+		width:78%;
+		height:100%;
+		float:left;
+	}
+	.anliOneHeader{
+		width:100%;
+		height:30px;
+		font-weight: 550;
+		line-height:30px;
+		font-size:16px;
+		color:#303030;
+		margin:0px;
+		float:left;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+		overflow: hidden;
+	}
+	.anliOneTestLeft{
+		width:50%;
+		height:25px;
+		line-height:25px;
+		font-size:14px;
+		color:#808080;
+		float:left;
+	}
+	.anliOneTestRight{
+		width:50%;
+		height:25px;
+		line-height:25px;
+		font-size:14px;
+		color:#808080;
+		float:left;
+	}
+	.anliOneTime{
+		width:100%;
+		line-height:20px;
+		/* text-align:right; */
+		float:left;
+	}
+	
+	
+
+
+</style>
+<script>
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal', function($scope,$state,$timeout,$modal) {
+	
+		//这个控制器中的changeData是转表单数据的方法，在公共js文件中
+		
+		//根据新闻资讯的Cid获取新闻资讯的列表
+		var newCid = 3;
+		var currentPage =1;
+		var applyData={"cid":newCid,"pn":currentPage,"pc":6,condition:[]};
+		var type= "commonHomeConList";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.list;
+				var newCon = [];
+				if(contentData=="" || contentData==null){
+					$scope.news =[];
+					$scope.$digest();
+					return;
+				}
+				for(var i = 0; i < contentData.length; i++) {
+					if(i<6){
+						newCon.push(changeData(contentData[i]))
+					}
+				}
+				
+				$scope.news = newCon;
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}	
+		},$('body'));
+		
+		//通知公告
+		var tongzhiCid = 4;
+		var currentPage =1;
+		var applyData={"cid":tongzhiCid,"pn":currentPage,"pc":9,condition:[]};
+		var type= "commonHomeConList";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.list;
+				var newCon = [];
+				var newCon1 = "";
+				if(contentData=="" || contentData==null){
+					$scope.Tongzhi =[];
+					$scope.$digest();
+					return;
+				}
+				for(var i = 0; i < contentData.length; i++) {
+					if(i==0){
+						newCon1 = changeData(contentData[i])
+					}else{
+						newCon.push(changeData(contentData[i]))
+					}
+					
+				}
+				$scope.Tongzhi1 = newCon1;
+				$scope.Tongzhi = newCon;
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}	
+		},$('body'));
+		
+		//最新案例
+		var zuixinAnliCid = 2;
+		var currentPage =1;
+		var applyData={"cid":zuixinAnliCid,"pn":currentPage,"pc":9,condition:[]};
+		var type= "commonHomeConListAll";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.list;
+				var newCon = [];
+				var newCon1 = "";
+				if(contentData=="" || contentData==null){
+					$scope.zuixinAnli =[];
+					$scope.$digest();
+					return;
+				}
+				for(var i = 0; i < contentData.length; i++) {
+					
+					if(i<4){
+						newCon.push(changeData(contentData[i]))
+					}
+					
+				}
+				$scope.zuixinAnli = newCon;
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}	
+		},$('body'));
+		
+		//热门案例
+		var remenAnliCid = 4;
+		var currentPage =1;
+		var applyData={"cid":"","pn":currentPage,"pc":9,condition:[{'title':'案例类型',value:[1]}]};
+		var type= "commonHomeConList";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.list;
+				var newCon = [];
+				var newCon1 = "";
+				if(contentData=="" || contentData==null){
+					$scope.remenAnli =[];
+					$scope.$digest();
+					return;
+				}
+				for(var i = 0; i < contentData.length; i++) {
+					if(i<4){
+						newCon.push(changeData(contentData[i]))
+					}
+					
+					
+				}
+				$scope.remenAnli = newCon;
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}	
+		},$('body'));
+	
+		
+		$scope.contentOne = function(x){
+			if($.cookie("userToken")=="" || $.cookie("userToken")==null){
+					alertHtml($modal,"请登录");
+					return ;
+				}
+			$state.go("commonApp.commonContentsDetail",{"id":x.id});
+		}
+		
+		$scope.contentOneID = function(id){
+			if($.cookie("userToken")=="" || $.cookie("userToken")==null){
+					alertHtml($modal,"请登录");
+					return ;
+				}
+			$state.go("commonApp.commonContentsDetail",{"id":$scope.Tongzhi1.id});
+		}
+		
+		
+		
+		$scope.commonContentsList = function(mun){
+			$state.go("commonApp.commonContentsList",{cid:"",typeId:mun});
+		}
+		
+
+		
+	}]);
+</script>	

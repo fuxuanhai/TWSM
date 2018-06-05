@@ -1,0 +1,43 @@
+  <!-- navbar -->
+  <div ui-view="navbar" class="app-header navbar" style="height:142px;background:#800508">
+  </div>
+  <!-- / navbar -->
+
+  <!-- banner -->
+  <div ui-view="banner">
+  </div>
+  <!-- / banner -->
+
+  <!-- content -->
+  <div class="content" ui-view>
+
+  </div>
+  <!-- /content -->
+
+
+  <!-- footer -->
+  <div class="homeFooter text-center" style="margin:auto;height:120px;line-height:120px;float: left;width: 100%;">
+     ©2018版权属北大汇丰商学院所有&nbsp;&nbsp;&nbsp;&nbsp;ICP备案编号：粤ICP备12081285号
+  </div>
+  <style>
+  .app{
+	/* background:white; */
+  }
+  .homeFooter{
+	color:#aaa;
+	background:#800508;
+	/*background: -webkit-linear-gradient(left, #555bc1 , #4bcad8); 
+	background: -o-linear-gradient(right, #555bc1, #4bcad8); 
+	background: -moz-linear-gradient(right, #555bc1, #4bcad8); 
+	background: linear-gradient(to right, #555bc1 , #4bcad8);  */
+  }
+  </style>
+    <!--[if lte IE 9]>
+		<style>
+			.homeFooter{
+				background: #60a1db;
+			  }
+		</style>
+				
+	<![endif]-->
+  <!-- / footer -->

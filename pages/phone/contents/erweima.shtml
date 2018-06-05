@@ -1,0 +1,110 @@
+﻿<div style="width:100%;height:100%" id="erweimaChild" ng-controller="erweimaChild">
+	<img style="float:right;width:30px;" ng-click="close()" src="../contents/imgs/phone/close.png" />
+	<div id="qrcode">
+		<img  src="" style="width:250px;height:250px;">
+	
+	</div>
+	<div class="alertText" style="margin-top:20px">
+		<img style="width:30px;" ng-click="xiazai()" src="../contents/imgs/phone/baocun.png" />
+		
+		保存到本地
+	</div>
+	<div class="alertText">扫描即可查看内容</div>
+  </div>
+   
+<style>
+.wrapper-lg,.modal-body{
+	padding:0px;
+}
+.panel{
+    margin-bottom:0px;
+}
+#qrcode{
+    float:left;
+	border: 5px solid #800508;
+    box-sizing: border-box;
+}
+.alertText{
+	float:left;
+	width:100%;
+	line-height:30px;
+	text-align:center;
+	color:#800508;
+}
+</style>		
+<script>
+
+	app.controller('erweimaChild', ['$scope','$state','$location', '$timeout','$modal','$stateParams',function($scope,$state,$location,$timeout,$modal,$stateParams) {
+			var fenxiangId = $scope.$parent.fenxiangId;
+			$modalInstance = $scope.$parent.modalInstance;
+			
+			var bH = $("body").height();
+			var mW = $("body").width();
+			$(".modal-content").css({
+				"height":bH*0.6+"px",
+				"marginTop":bH*0.2+"px",
+				"background":"#F3EEED",
+			});
+			$("#qrcode").css({
+				"marginLeft":(parseInt(mW)-20-260)/2+"px",
+				"marginTop":"40px",
+			});
+			
+			
+			var dataShoucang={"url":$location.absUrl()}
+			var typeShoucang = "phoneContentsErweimaGet";
+			applicationService(dataShoucang,typeShoucang,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+				    var imageBase = "data:image/png;base64,"+data.data
+					$("#qrcode img").attr("src",imageBase);
+					
+				} else {
+					alert($modal,"获取二维码失败:原因"+statusText);
+				}
+			},$('body'));
+			
+			
+			$scope.xiazai =function(){
+			
+				window.location.href=window.API.cmsURL +"admin/content/downLoadCode?url="+$location.absUrl();
+				
+				/*var dataShoucang={"url":$location.absUrl()}
+				var typeShoucang = "phoneContentsErweimaDownload";
+				applicationService(dataShoucang,typeShoucang,function(data){
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alert($modal,"下载二维码成功");
+						
+					} else {
+						alert($modal,"下载二维码失败:原因"+statusText);
+					}
+				},$('body'));*/
+			}
+			
+			
+			
+	/*		
+			var qrcode = new QRCode(document.getElementById("qrcode"), {
+					width: 250,
+					height: 250
+				});
+				
+				var URL = $location.absUrl();
+				qrcode.makeCode(URL);
+				$timeout(function(){
+					$("#xiazhai").attr("href",$("#qrcode img").attr("src"));
+				//	$("#xiazhai").attr("href","www.baidu.com");
+				},100)
+			*/
+				
+				$scope.close = function () {
+					
+					$modalInstance.close();
+					
+				}	
+	}])
+	
+</script>

@@ -1,0 +1,162 @@
+﻿<div id="addUser" ng-controller="addUser">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3" id="addTitle">添加用户</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" class="sysSetForm" name="userForm" style="margin:30px auto 30px auto">
+
+						<div class="form-group">
+							<label>账号类型：</label>
+							<div id="sid" style="display: inline;">
+								<label class="i-checks m-b-none" style='margin:0px 10px;width:auto' ng-repeat="x in roles">
+									<input type='checkbox' value="{{ x.id }}" id="userSid{{ x.id }}"/> <i></i>{{ x.name }}
+								  </label>
+							</div>
+							<span style="color:red">{{ rolesDes }}</span>
+						</div>
+						
+						<div class="form-group">
+							<label>账号：</label>
+							<input ng-model="account" />
+							<span style="color:red">{{ accountDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>密码：</label>
+							<input type="password" ng-model="pwd" />
+							<span style="color:red">{{ pwdDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>确认密码：</label>
+							<input type="password" ng-model="repwd" />
+							<span style="color:red">{{ repwdDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>姓名：</label>
+							<input ng-model="name" />
+							<span style="color:red">{{ nameDes }}</span>
+						</div>
+						
+						<div class="form-group">
+							<label>邮箱：</label>
+							<input ng-model="email"  />
+							<span style="color:red">{{ emailDes }}</span>
+							
+						</div>
+						<div class="form-group">
+							<label>手机：</label>
+							<input ng-model="phone" />
+							<span style="color:red">{{ phoneDes }}</span>
+						</div>
+
+						<button id="tijiaoUser" class="btn btn-sm btn-primary" style="margin-left:130px" ng-click="addUser()">提交</button>
+					</form>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+.schoolName .btn-default{
+	border-color:#a9a9a9;
+}
+</style>
+
+<script>
+
+	app.controller('addUser', ['$scope','$state','$modal', function($scope,$state,$modal) {
+	
+		//获取系统角色
+		var data = {
+			"TOKEN": $.cookie('userToken')
+		};
+		var type="adminUsersAddSysRole";
+		applicationService(data,type,function(data) {
+			dataToken = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.roles = dataToken;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取系统角色失败,原因："+statusText);
+			}
+		},$('body'));
+		$scope.addUser = function() {
+			$scope.rolesDes = "";
+			$scope.schoolDes ="";
+			$scope.accountDes ="";
+			$scope.pwdDes = "";
+			$scope.repwdDes = "";
+			$scope.idNumberDes = "";
+			$scope.emailDes = "";
+			$scope.phoneDes = "";
+		
+			var objArr = $("#sid input[type='checkbox']:checked");
+			var sid = 0;
+			for(var i = 0; i < objArr.length; i++) {
+				sid = parseInt(sid) + parseInt(objArr.eq(i).val());
+			}
+			if(sid==0){
+				$scope.rolesDes = "请选择账号类型";
+				return;
+			}
+			if(!captchaLibrary.isNull($scope.account) && !captchaLibrary.isNull($scope.phone) && !captchaLibrary.isNull($scope.email)){
+				$scope.accountDes = "账号，邮箱和手机必填一个，不能全部为空";
+				return;
+			}
+			
+			if(!captchaLibrary.account($scope.account) && captchaLibrary.isNull($scope.account)) {
+				$scope.accountDes = "长度6-32,首位为字母,含有英文字母或者数字或者下划线";
+				return;
+			}
+			
+			if(!captchaLibrary.password($scope.pwd) || !captchaLibrary.isNull($scope.pwd)) {
+				$scope.pwdDes = "长度必须大于5,必须同时含有一个大小写字母和数字";
+				return;
+			}
+			
+			if($scope.repwd != $scope.pwd) {
+				$scope.repwdDes = "两次输入密码不一样";
+				return;
+			}
+	
+			if(!captchaLibrary.email($scope.email) && captchaLibrary.isNull($scope.email)) {
+				$scope.emailDes = "邮箱格式错误";
+				return;
+			}
+		
+			if((!captchaLibrary.phone($scope.phone) || !captchaLibrary.length($scope.phone,11,20) ) && captchaLibrary.isNull($scope.phone)) {
+				$scope.phoneDes = "手机号码错误";
+				return;
+			}
+			
+			var data = {
+				"TOKEN": $.cookie('userToken'),
+				"sid": sid,
+				"account": $scope.account,
+				"pwd": $scope.pwd,
+				"name": $scope.name,
+				"phone": $scope.phone,
+				"email": $scope.email
+			};
+			var typeName="adminUsersAdd";
+			applicationService(data,typeName,function(data) {
+				userToken = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"提交成功",function(){
+						$state.go('app.userList');
+					});
+				} else {
+					alertHtml($modal,"提交失败:" + statusText);
+				}
+			},$("body"));	
+		}
+	}]);
+</script>

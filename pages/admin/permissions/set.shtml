@@ -1,0 +1,251 @@
+<link rel="stylesheet" type="text/css" href="../contents/combobox/easyui.css">
+<link rel="stylesheet" type="text/css" href="../contents/combobox/icon.css">
+<link rel="stylesheet" type="text/css" href="../contents/combobox/demo.css">
+<!--
+<script type="text/javascript" src="../contents/combobox/jquery.min.js"></script>
+<script type="text/javascript" src="../contents/combobox/jquery.easyui.min.js"></script>
+-->
+<div class="modal-body wrapper-lg" ng-controller="permissionsSetChild">
+	<div class="panel panel-default" id="permissionsSetContent">
+        <div class="panel-heading font-bold">权限设置</div>
+        <div class="panel-body">
+			<div style="height:280px;overflow:auto">
+				<form role="form" class="sysSetForm" name="userForm" style="margin:30px auto 30px auto">
+
+						<div class="form-group">
+							<label>系统角色：</label>
+							<div id="sid" style="display: inline;" class="rolesList">
+								<label class="i-checks m-b-none"  style='margin:0px 10px;width:auto' ng-repeat="x in roles">
+									<input name = "sysRoles" type="radio"  value="{{ x.id }}" id="userSid{{ x.id }}"/><i></i>{{ x.name }}
+								  </label>
+							</div>
+							<span style="color:red">{{ rolesDes }}</span>
+						</div>
+						
+						<div class="form-group" ng-hide="true" ng-init="type=1">
+							<label>权限类型</label>
+							<input ng-model="type" />
+						</div>
+						<div class="form-group">
+							<label>模块标题</label>
+							<div style="width:250px;display:inline-block;" >
+								<select id="comboboxlist" class="easyui-combobox" ng-model="module" name="state" style="width:100%;">
+										<!--
+										<option value="{{x.name}}" ng-repeat="x in modules">{{x.name}}</option>
+										-->
+									</select>
+							</div>
+							<span style="color:red">{{ moduleDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>权限标题</label>
+							<input ng-model="title" />
+							<span style="color:red">{{ titleDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>权限值</label>
+							<input ng-model="expression" />
+							<span style="color:red">{{ expressionDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>权限描述</label>
+							<input ng-model="description" />
+							<span style="color:red">{{ descriptionDes }}</span>
+						</div>
+						
+					</form>
+				
+			</div>
+			<div class="text-center" style="height:50px;">
+				<button  style="margin-right:100px" type="submit" class="btn btn-sm btn-primary" ng-click="ok()">提交</button>
+				<button  type="submit" class="btn btn-sm btn-primary" ng-click="back()">关闭</button>
+			</div>
+			
+		</div>
+      </div>
+</div>
+<style>
+.modal-lg{
+width: 600px;
+}
+.wrapper-lg,.modal-body{
+	padding:0px;
+}
+.panel{
+    margin-bottom:0px;
+}
+.pull-in{
+	margin:0px;
+	width:100%;
+}
+.form-group input{
+	height:30px;
+}
+
+.rolesList input{
+	height:auto;
+}
+.sysSetForm .combo{
+	margin-left: 0px;
+	border-radius: 0px;
+    border: 1px solid #a9a9a9;
+}
+.combo-panel{
+	max-height:100px;
+}
+.panel-body{
+
+padding:15px;
+}
+</style>		
+
+<script>
+	app.controller('permissionsSetChild', ['$scope','$state','$timeout', '$modal', function($scope,$state,$timeout,$modal) {
+		
+	
+		
+		var modules = $scope.$parent.modules;
+		var updateObj = $scope.$parent.updateObj;
+		$modalInstance = $scope.$parent.modalInstance;
+		$scope.updateObj =$scope.$parent.updateObj;
+		$scope.roles = $scope.$parent.sysRoles;
+		$scope.modules = [];
+		for(var i=0;i<modules.length;i++){
+			$scope.modules.push({"name":modules[i]});
+		}
+		
+		for(var i=0;i<$scope.modules.length;i++){
+			$("#comboboxlist").append("<option value='"+$scope.modules[i].name+"'>"+$scope.modules[i].name+"</option>");
+		}
+		$.parser.parse();
+		if(updateObj!="" && updateObj!=null){
+			$('#comboboxlist').combobox('setValue',updateObj.module)
+		}
+		
+		$scope.title = updateObj.title;
+		$scope.expression = updateObj.expression;
+		$scope.description = updateObj.description;
+		
+		$timeout(function(){
+			$("#userSid"+updateObj.sid).attr("checked",true)
+		},200);
+	
+		
+		
+		
+		
+		$scope.ok = function(){
+		
+			var sid = $(".rolesList input:checked").val();
+			var module = $.trim($('#comboboxlist').combobox('getValue'));
+			var type = $scope.type;
+			var title = $scope.title;
+			var expression = $scope.expression;
+			var description = $scope.description;
+			$scope.rolesDes="";
+			$scope.moduleDes ="";
+			$scope.titleDes ="";
+			$scope.expressionDes="";
+			
+			if(!captchaLibrary.isNull(sid)){
+				$scope.rolesDes = "请选择系统角色";
+				return ;
+			}
+			
+			if(!captchaLibrary.isNull(module) || module.indexOf('undefined')>-1){
+				$scope.moduleDes = "模块标题不能为空";
+				return ;
+			}
+			
+			if(!captchaLibrary.isNull(title)){
+				$scope.titleDes = "权限标题不能为空";
+				return ;
+			}
+			if(!captchaLibrary.length(title,1,10)){
+				$scope.titleDes = "权限标题字数1-10";
+				return ;
+			}
+			
+			if(!captchaLibrary.isNull(expression)){
+				$scope.expressionDes = "权限值不能为空";
+				return ;
+			}
+			
+			
+			var data = {
+				"sid": sid,
+				"type":type,
+				"module":module,
+				"title":title,
+				"expression":expression,
+				"description":description,
+				
+			};
+			var type="adminPermissionsSetAdd";
+			
+			if(updateObj!="" && updateObj!=null){
+				data = {
+					"id":updateObj.id,
+					"sid": sid,
+					"type":type,
+					"module":module,
+					"title":title,
+					"expression":expression,
+					"description":description,
+				};
+				type="adminPermissionsSetEdit";
+			}
+			
+			
+			applicationService(data,type,function(data) {
+				userToken = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$modalInstance.close();
+					alertHtml($modal,"操作成功",function(){
+						$state.reload('app.permissionsList');
+					});
+				} else {
+					alertHtml($modal,"操作失败，原因："+statusText);
+				}
+			},$("#permissionsSetContent"));
+			
+		}
+		
+		$scope.back = function(){
+			$modalInstance.close();
+		}
+	
+	}]);
+		
+
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+</script>

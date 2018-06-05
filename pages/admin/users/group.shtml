@@ -1,0 +1,339 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">用户组管理</h1>
+</div>
+<div class="wrapper-md" id="userGroup" ng-controller="userGroup" ng-init="">
+
+	<div class="panel panel-default">
+		<div class="row wrapper" style="padding:0px;margin:0px">
+			<!-- 左边类别列表  -->
+			<div class="col-sm-2 bg-gray-only" style="border-right:1px solid #cfd6d8">
+				<ul class="list-group no-bg no-borders pull-in">
+					<div class="liTitle">用户组列表</div>
+					<li ng-repeat="x in sysRoles" class="list-group-item" style="border-bottom:1px solid #cfd6d8;padding: 0px;min-height: 40px;line-height: 40px;">
+						<div style="word-wrap: break-word;border-bottom:1px solid #cfd6d8;height:40px;width:100%;display:block;padding-left: 20px;">{{x.text}}</div>
+						<ul class="list-group no-bg no-borders pull-in">
+							<li ng-click="getGroupInfo({{y.id}},{{x.id}},$event)"  ng-repeat="y in x.userGroups" class="list-group-item" style="border-bottom:1px solid #cfd6d8;min-height: 40px;line-height: 40px;">
+								{{y.text}}
+							</li>
+							<li class="list-group-item" style="border-bottom:1px solid #cfd6d8;background: #c4c4c4;">
+								<div ng-click="addGroup({{x.id}})" style="cursor:pointer;"> 添加用户组</div>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+
+			<!-- 右边  -->
+			<div class="col-sm-10">
+
+				<!-- 右边头部  -->
+				<div class="row bg-gray-only" style="padding: 5px 0px;">
+					<div class="col-sm-6" style="line-height:30px">
+						用户组设置
+					</div>
+					<div class="col-sm-6 text-right">
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="delete()">删除</button>
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="sort(0)">上移</button>
+						<button class="btn btn-sm btn-primary" ng-click="sort(1)">下移</button>
+					</div>
+				</div>
+				<!-- 右边表单  -->
+				<div class="row">
+					<form role="form" style="width:80%;margin:30px auto 30px 10%;line-height30px;">
+
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px">
+							<label class="col-sm-2 control-label text-right">上级用户组</label>
+							<div class="col-sm-6">
+								<select id="select1" class="form-control col-sm-5" ng-model="select1">
+									<option value="0">请选择</option>
+									<option value="{{ x.id }}" ng-repeat=" x in opt" obj="{{ x }}">{{ x.text }}</option>
+
+								</select>
+							</div>
+						</div>
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px">
+							<label class="col-sm-2 control-label text-right">标题</label>
+							<div class="col-sm-6">
+								<input ng-model="title" style="width:100%;height:30px;" />
+							</div>
+							<span class="col-sm-4" style="color:red">{{ titleDes }}</span>
+						</div>
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px">
+							<label class="col-sm-2 control-label text-right">代码</label>
+							<div class="col-sm-6">
+								<input ng-model="code" style="width:100%;height:30px;"/>
+								
+							</div>
+							<span class="col-sm-4" style="color:red">{{ codeDes }}</span>
+						</div>
+						<div class="form-group" style="width:100%;float:left;min-height:30px;line-height:30px;display:-moz-box;display:-webkit-box;display:box;">
+							<label class="col-sm-2 control-label text-right">角色设置</label>
+							<div class="col-sm-10 rolesList">
+								<label class="i-checks m-b-none" ng-repeat="y in roles" title="{{y.title}}">
+									<input type="checkbox" id="roles{{y.id}}" ng-click="checkboxClick()" vid="{{y.id}}"><i></i>{{y.title}}
+								</label>
+							</div>
+						</div>
+						
+
+						<button class="btn btn-sm btn-primary" style="margin-left:140px" ng-click="submitFrom()">提交</button>
+					</form>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+
+.liTitle{
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    background: #f6f8f8;
+	padding-left:10px;
+}
+
+.pull-in .pull-in{
+	margin:0px;
+}
+.pull-in .pull-in .list-group-item{
+	padding:0px;
+	padding-left:30px;
+	border-bottom:1px solid #cfd6d8;
+	min-height: 40px;
+	line-height: 40px;
+	cursor:pointer;
+}
+.rolesList label{
+		width:25%;
+	overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+	line-height:30px;
+}
+.list-group.no-bg .activeMune{
+	background:#bdb4b4;
+}
+
+
+</style>
+
+<script>
+
+app.controller('userGroup', ['$scope','$modal', '$state', function($scope,$modal, $state) {
+		$scope.id ="";
+		$scope.select1="0";
+		
+		//获取用户组列表
+		var data = {};
+		var type="adminUsersGroupList";
+		applicationService(data,type,function(data) {
+			consoleLog(data)
+			var thisDate = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {	
+				$scope.sysRoles=[];
+				for(var i=0;i<thisDate.length;i++){
+					thisDate[i].id = thisDate[i].id.substring(3);
+					$scope.sysRoles = $scope.sysRoles.concat([thisDate[i]]);
+					if(thisDate[i].children!="" && thisDate[i].children!=null ){
+						var sysRolesLastIndex= parseInt($scope.sysRoles.length-1);
+						$scope.sysRoles[sysRolesLastIndex].userGroups=[];
+						$scope.sysRoles[sysRolesLastIndex].userGroups = $scope.sysRoles[sysRolesLastIndex].userGroups.concat(changeList(thisDate[i].children,0));
+					}
+					
+				}
+				$scope.opt = $scope.sysRoles[0].userGroups;
+				$scope.sid = $scope.sysRoles[0].id;
+				$scope.$apply();
+			}else{
+				alertHtml($modal,"获取用户组列表失败，失败原因："+statusText);
+			}
+		},$("body"))
+		
+		//获取角色列表
+		var data = {};
+		var type="adminUsersGroupRolesList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.roles = thisData;
+				$scope.$apply();	
+			}else{
+				alertHtml($modal,"获取角色列表失败，原因："+statusText)
+			}
+		},$('body'))
+		
+		//添加用户组的按钮事件
+		$scope.addGroup = function(id){
+			$scope.id ="";
+			$scope.select1="0";
+			$("li").removeClass('activeMune');
+			for(var i=0;i<$scope.sysRoles.length;i++){
+				if(id==$scope.sysRoles[i].id){
+					$scope.opt = $scope.sysRoles[i].userGroups;
+				}
+			}
+			$scope.title="";
+			$scope.code="";
+			$(".rolesList input").prop("checked",false);
+			$scope.sid = id;
+		}
+		
+		//获取用户组详情
+		$scope.getGroupInfo = function(id,sid,$event){
+			$("li").removeClass('activeMune');
+			$($event.target).addClass('activeMune');
+			
+			
+			for(var i=0;i<$scope.sysRoles.length;i++){
+				if(sid==$scope.sysRoles[i].id){
+					$scope.opt = $scope.sysRoles[i].userGroups;
+				}
+			}
+			
+			var type="adminUsersGroupGet";
+			var data = {"id":id};
+			$scope.id = id;
+			
+			
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$scope.id = id;
+					$scope.select1=thisData.pid;
+					$scope.title=thisData.title;
+					$scope.code=thisData.code;
+					$scope.sid=sid;
+					for(var i=0;i<thisData.roleData.length;i++){
+						$("#roles"+thisData.roleData[i].id).prop("checked",true);
+					}
+					$scope.$apply();
+					
+				}else{
+					alertHtml($modal,"获取用户组详情失败，原因："+statusText)
+				}
+			},$('body'))
+			
+			
+		}
+		
+		//提交表单内容，添加或者修改用户
+		$scope.submitFrom = function(){
+			
+			$scope.titleDes ="";
+			$scope.codeDes =""
+			
+			if(!captchaLibrary.isNull($scope.title) || !captchaLibrary.length($scope.title,1,10)) {
+				$scope.titleDes = "标题不能为空，长度为1-10";
+				return;
+			}
+			if(!captchaLibrary.length($scope.code,0,20)) {
+				$scope.codeDes = "代码长度为0-20";
+				return;
+			}
+			
+			var type="adminUsersGroupEdit";
+			var data = {
+				"id":$scope.id,
+				"sid":$scope.sid,
+				"pid":$scope.select1,
+				"title":$scope.title,
+				"code":$scope.code,
+				"roleData":getCheckedOfList(),
+			};
+			
+			
+			if($scope.id=="" || $scope.id==null){
+				type="adminUsersGroupAdd";
+				data = {
+					"sid":$scope.sid,
+					"pid":$scope.select1,
+					"title":$scope.title,
+					"code":$scope.code,
+					"roleData":getCheckedOfList(),
+				};
+			}else if($scope.id==$scope.select1){
+				alertHtml($modal,"上级用户组不能是自己本身");
+				return false;
+			}
+			//提交用户组信息
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"提交成功",function(){
+					
+						$state.reload('app.usersGroup');
+					});
+					
+				}else{
+					alertHtml($modal,"提交失败，原因："+statusText);
+				}
+			},$("body"))	
+		}
+		
+		//删除事件
+		$scope.delete=function(){
+			if($scope.id==null || $scope.id==""){
+				alertHtml($modal,"请选择用户组");
+				return ;
+			}
+			deleteHtml($modal,"确定删除该用户组吗?",deleteGroup,$scope.id);
+			function deleteGroup(id){
+				//删除用户组
+				var type="adminUsersGroupDelete";
+				var data = {"id":id}
+				
+				applicationService(data,type,function(data) {
+					var thisDate = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							$state.reload('app.usersGroup');
+						});
+						
+					}else{
+						alertHtml($modal,"删除失败，原因："+statusText);
+					}
+				},$("body"))
+			}
+		}
+		
+		//上下移排序事件
+		$scope.sort = function(sorkType){
+			
+			//上下移用户组
+			if($scope.id=="" || $scope.id==null){
+				alertHtml($modal,"请选择用户组");
+				return ;
+			}
+			var data = {"id":$scope.id,"type":sorkType};
+			var type="adminUsersGroupSort";
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功",function(){
+						$state.reload('app.usersGroup');
+					});
+					
+				}else{
+					alertHtml($modal,"操作失败，原因："+statusText);
+				}
+			},$("body"))
+		}
+		
+
+	}]);
+</script>

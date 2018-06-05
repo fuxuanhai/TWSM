@@ -1,0 +1,266 @@
+
+
+		
+		<style>
+			html{
+				width:100%;
+				height:100%;
+			}
+			body {
+				width:100%;
+				height:100%;
+				float:left;
+				margin:0px;
+				background: url('../contents/imgs/loginBack.png') no-repeat fixed center;
+				background-size: 100% 100%;
+			//	line-height: 30px;
+			}
+			.app-header,.app-aside,.app-footer{
+				display:none;
+			}
+			
+			
+			
+			.container {
+				margin: auto;
+			//	padding: 20px 30px;
+				width: 600px;
+				height:400px;
+				background: #fff;
+				border: 1px solid #e5e5e5;
+				border-radius: 5px;
+				box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+			}
+			
+			h2 {
+				margin: 10px auto;
+			}
+			
+			input {
+				width: 320px;
+				height: 30px;
+				line-height: 30px;
+				padding: 7px 9px;
+				margin-bottom: 15px;
+				background-color: #fff;
+				border:0px;
+				border-bottom: 1px solid #ccc;
+				font-size: 16px;
+				outline:none;
+			}
+			
+			.error {
+				display: block;
+				color: #f00;
+				margin-bottom: 15px;
+			}
+			
+			.pageFooter {
+				margin: 30px auto;
+				padding: 0 auto;
+				text-align: center;
+			}
+			
+			#btnLogin{
+				cursor: pointer;
+				border-radius: 4px;
+				border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+				color: #7f7f7f;
+				font-size: 17px;
+				width: 280px;
+				margin-left: 20px;
+				margin-top: 10px;
+				height: 35px;
+				border: 0px;
+			}
+			
+			a {
+				text-decoration: none;
+				font-size: 0.9em;
+				vertical-align: bottom;
+				margin: 0 0 0 20px;
+			}
+			
+			#yanzhengmaImg {
+				
+				height: 40px;
+				margin-top:-5px;
+				width: 98px;
+				vertical-align: middle;
+				margin-left: 15px;
+			}
+			.loginLeft{
+				height: 401px;
+				width: 200px;
+				margin-left:-1px;
+				vertical-align: middle;
+				float: left;
+			}
+			form{
+				width: 340px;
+				float: left;
+				padding: 20px 30px;
+			}
+			.checkCode {
+				width: 150px;
+			}
+			.loginTitle{
+				margin-bottom:50px;
+				margin-top: 20px;
+			}
+			.container{
+				padding:0px;
+			}
+		</style>
+
+
+		<div class="container" ng-controller="login">
+			<img class="loginLeft" src="../contents/imgs/loginLeft.png">
+			<form>
+				<img class="loginTitle" src="../contents/imgs/loginTitle.png">
+
+				<!--[if lte IE 9]>
+				<style>
+					.loginTitle{
+						margin-bottom:10px
+					}
+				</style>
+				</br>
+				账号:
+				<![endif]-->
+				<input type="text" name="account" id="account" placeholder="账号" />
+				<!--[if lte IE 9]>
+				密码:
+				<![endif]-->
+				<input type="password" name="password" id="password" placeholder="密码" />
+
+				<!--[if lte IE 9]>
+				验证码:<br />
+				<![endif]-->
+				<input class="checkCode" type="text" name="checkCode" placeholder="验证码" />
+			
+				<img id='yanzhengmaImg' src='' onclick='yanzhegnmaImg()' />
+
+				<span class="error"></span>
+
+				<input type="hidden" name="remember" value="false" />
+
+				<button id="btnLogin">登录</button>
+
+			</form>
+		</div>
+<style>
+.app-header-fixed{
+padding-top:0px;
+}
+.app{
+min-height:auto;
+height:100%;
+
+}
+.app-content{
+margin-left:0px;
+}
+.app-content-body{
+margin-top:0px;
+}
+
+</style>
+
+	<script>
+		var cliURL=window.location.protocol+"//"+window.location.host+"/"+window.location.pathname.split("/")[1]+"/";
+	function yanzhegnmaImg() {
+				var myDate = new Date();
+				//获取当前年
+				var year = myDate.getFullYear();
+				//获取当前月
+				var month = myDate.getMonth() + 1;
+				//获取当前日
+				var date = myDate.getDate();
+				var h = myDate.getHours(); //获取当前小时数(0-23)
+				var m = myDate.getMinutes(); //获取当前分钟数(0-59)
+				var s = myDate.getSeconds();
+				var now = year + '-' + month + "-" + date + " " + h + ':' + m + ":" + s;
+				$("#yanzhengmaImg").remove();
+				$('.checkCode').after("<img id='yanzhengmaImg' src='" + cliURL + "captcha.shtml?time=" + now + "' onclick='yanzhegnmaImg()'/>");
+
+			}
+	app.controller('login', ['$scope','$state','$modal',function($scope,$state,$modal) {
+		
+			
+
+			document.getElementById("account").focus();
+
+			$("#yanzhengmaImg").attr("src", (cliURL + "captcha.shtml"));
+			
+			$(".container").parent().css({
+					paddingTop:(parseInt($("body").height())-400)/2+"px"
+				})
+			
+			
+			
+				$(".container form").submit(function(){
+					formSubmit();
+					return false;
+					
+				})
+			
+				$('#btnLogin').click(function(){
+					formSubmit();
+					return false;
+				});
+				
+				function formSubmit(){
+					var loginName = $("#account").val();
+					var password = $("#password").val();
+					var checkCode = $(".checkCode").val();
+					$(".error").text("");
+
+					if(loginName == "") {
+						$(".error").text("用户名不能为空");
+						return;
+					} else if(password == "") {
+						$(".error").text("密码不能为空");
+						return;
+					}
+
+					
+					var data = {
+						"loginName": loginName,
+						"password": password,
+						"captchaCode": checkCode
+					};
+					
+					var type="memberLogin";
+					applicationService(data,type,function(data) {
+						var thisData = data.data;
+						var status = data.status;
+						var statusText = data.statusText;
+						if(status == 1) {
+							
+							teacherLoginSuccess(thisData,function(data){
+							
+								alertHtml(data,"登录成功",function(){
+									var str= cliURL + "pages/index.shtml#/memberApp/memberContentsList&";
+									window.location.href = str;
+									setTimeout(function(){
+										history.go(0);
+									},1000)
+								
+								})
+							},$modal);
+						} else {
+							$(".error").text(statusText);
+						}
+					},$('body'))
+					
+					
+				}
+	
+	
+	}])
+		
+
+		</script>
+  
+	

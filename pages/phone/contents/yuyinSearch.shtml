@@ -1,0 +1,117 @@
+﻿<div  style="width:100%;margin:auto;float: left;" ng-controller="homeIndex" id="homeIndex">
+	<div class="typeTest">
+		<div class="div-bor">
+			<i class="icon-search"></i>
+			<input class="search" ng-modal="searchText" placeholder="搜索"/>
+			
+		</div>
+	</div>
+	
+	<div style="width:100%;height:auto;float:left;margin-top:80px;text-align:center;">
+		
+		<!-- <img ng-click="yuyinSearch()" style="width:100px;" src="../contents/imgs/phone/bigYuyin.png" /> -->
+		<img onclick="fxhyuyinSearch()" style="width:100px;" src="../contents/imgs/phone/bigYuyin.png" />
+	</div>
+	
+
+</div>
+
+<style>
+	.app{
+		background:#F3EEED;
+	}
+	.typeTest{
+		width:100%;height:40px;falot:left;margin-top:60px;
+	}
+	.typeTestOne{
+		width:auto;
+		height:40px;
+		padding:0px 20px;
+		margin:10px 0px;
+		line-height:40px;
+		display: inline-block;
+		border-right:3px solid #800508;
+		color:#800508;
+		font-size:1.2rem;
+	}
+	
+	
+	.div-bor{
+		position: relative;
+		height: 40px;
+		line-height: 40px;width: 90%;margin-left: 5%;
+		background:white;
+		border-radius: 10px;
+	}
+
+.icon-search{
+
+position: absolute;
+z-index:5;
+top:5px;
+background-image: url(../contents/imgs/phone/search.png); /*引入图片图片*/
+
+background-repeat: no-repeat; /*设置图片不重复*/
+
+background-position: 0px 0px; /*图片显示的位置*/
+
+width: 30px; /*设置图片显示的宽*/
+
+height: 30px; /*图片显示的高*/
+
+}
+.icon-yuyin{
+	position: absolute;
+    right: 0;
+    z-index: 5;
+    top: 5px;
+	right:10px;
+    background-image: url(../contents/imgs/phone/yuyin.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 23px;
+    height: 30px;
+	cursor:pointer;
+
+}
+
+.search{
+
+width:100%;
+height:100%;
+padding:0px 30px;
+cursor:pointer;
+border-radius: 10px;
+}
+	
+	
+	
+</style>
+<script>
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal', function($scope,$state,$timeout,$modal) {
+		
+		
+		
+		$(".search").keyup(function(event){
+		  if(event.keyCode ==13){
+			var searchText = $(this).val();
+			$state.go("phoneApp.searchResult",{"text":searchText});
+		  }
+		});
+		
+		$scope.yuyinSearch = function(){
+				window.android.startVoiceSearch();
+				window.webkit.messageHandlers.startVoiceSearch.postMessage(null);
+				//语音搜索;
+				//var searchWord="22";
+				//startSearch(searchWord);
+			}
+	}]);
+	function fxhyuyinSearch () { 
+		if ((navigator.userAgent.indexOf('Android')  !=  -1))  {     
+			window.android.startVoiceSearch();
+		} else if ((navigator.userAgent.indexOf('iPhone')  !=  -1)) {
+			window.webkit.messageHandlers.startVoiceSearch.postMessage(null);
+		}
+	 }
+</script>	

@@ -1,0 +1,220 @@
+<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">系统设置</h1>
+</div>
+<div class="wrapper-md" ng-controller="systemSetting" ng-init="pwdEffectiveDes='请输入正整数，如果永不过期请不要输入';pwdExpireDes='请输入正整数且小于密码有效期';">
+	<div class="row">
+
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<form role="form" class="sysSetForm" style="margin:30px auto 30px auto">
+					<div class="form-group" style="40px">
+						<label style="float:left;line-height:40px">网站LOGO:</label>
+						<div id="uploader-demo" style="float:left">
+							<div id="filePicker">选择图片</div>
+						</div>
+						<span style="line-height:40px;color:red">{{ logoImgDes }}</span>
+					</div>
+					<div class="form-group" style="width:100%;float:left;margin-bottom:0px">
+						<label ng-hide="true">MD5</label>
+						<input id="bannerId" ng-model="logoImg" ng-hide="true" />
+						<div id="fileList" class="uploader-list" style="margin-left:130px;margin-bottom:10px;width:100px;background:#ccc">
+						</div>
+					</div>
+					       
+					<div class="form-group">
+						<label>网站标题:</label>
+						<input id="webTitle" ng-model="webTitle" />
+						<span style="color:red">{{ webTitleDes }}</span>
+					</div>
+					<div class="form-group">
+						<label >问答系统:</label>
+						<input id="wenda" ng-model="wenda" />
+						<span style="color:red">{{ wendaDes }}</span>
+					</div>
+					<div class="form-group">
+						<label >VR系统:</label>
+						<input id="VRxitong" ng-model="VRxitong" />
+						<span style="color:red">{{ VRxitongDes }}</span>
+					</div>
+					<div class="form-group">
+						<label >端口配置:</label>
+						<input id="duankou" ng-model="duankou" />
+						<span style="color:red">{{ duankouDes }}</span>
+					</div>
+					<div class="form-group">
+						<label style="float:left">网站关键字:</label>
+						<textarea ng-model="webKey" style='width:350px;height:120px; margin-left: 3px;'> </textarea>
+						<span style="color:red">{{ webKeyDes }}</span>
+					</div>
+					<div class="form-group">
+						<label style="float:left">网站描述:</label>
+						<textarea ng-model="webDepict" style='width:350px;height:120px; margin-left: 3px;'> </textarea>
+						<span style="color:red">{{ webDepictDes }}</span>
+					</div>
+					
+					
+					<button class="btn btn-sm btn-primary" style="margin-left:130px" ng-click="safeSetting()">提交</button>
+				</form>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<script>
+
+	app.controller('systemSetting', ['$scope','$rootScope','$state','$modal', function($scope,$rootScope,$state,$modal) {
+		
+		//上传图片插件的接口调用
+		uploadeImg();
+		
+
+		var data = {
+				"data": [{
+					"group": "webSite",
+					"key": "logoImg"
+				},{
+					"group": "webSite",
+					"key": "webTitle"
+				},{
+					"group": "webSite",
+					"key": "webKey"
+				},{
+					"group": "webSite",
+					"key": "webDepict"
+				},{
+					"group": "webSite",
+					"key": "wenda"
+				},{
+					"group": "webSite",
+					"key": "duankou"
+				},{
+					"group": "webSite",
+					"key": "VRxitong"
+				}]
+			};
+		var type="adminSystemWebsiteConfigGet";
+		applicationService(data,type,function(data) {
+		
+					var thisData = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						
+						for(var i = 0; i < thisData.length; i++) {
+							if(thisData[i].key == "logoImg") {
+								$("#bannerId").val(thisData[i].value);
+								$scope.logoImg = thisData[i].value;
+								var imgHtml = "<img src='" + zeroURL + "common/file/image?id=" + thisData[i].value + "&size=100_100'>"
+								$("#fileList").append(imgHtml);
+							}
+							if(thisData[i].key == "webTitle") {
+								$scope.webTitle = thisData[i].value;
+								$rootScope.appTittle = thisData[i].value;
+								$rootScope.$apply();
+							}
+							if(thisData[i].key == "webKey") {
+								$scope.webKey = thisData[i].value;
+							}
+							if(thisData[i].key == "webDepict") {
+								$scope.webDepict = thisData[i].value;
+							}
+							if(thisData[i].key == "wenda") {
+								$scope.wenda = thisData[i].value;
+							}
+							if(thisData[i].key == "duankou") {
+								$scope.duankou = thisData[i].value;
+							}
+							if(thisData[i].key == "VRxitong") {
+								$scope.VRxitong = thisData[i].value;
+							}
+							
+						}
+						
+						$scope.$apply();
+					} else {
+						alertHtml($modal,"获取系统失败,原因："+statusText);
+					}
+				},$("body"));
+		
+
+		$scope.safeSetting = function() {
+			$scope.logoImgDes = "";
+			$scope.webTitleDes  = "";
+			 $scope.logoImg =$("#bannerId").val();
+			if($scope.logoImg == "" || $scope.logoImg == null) {
+				$scope.logoImgDes = "请上传Logo";
+				return;
+			}
+			
+			if($scope.webTitle == "" || $scope.webTitle == null) {
+				$scope.webTitleDes = "请输入网站标题";
+				return;
+			}
+
+			var data = {
+				"TOKEN": $.cookie('userToken'),
+				"data": []
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "logoImg",
+				"value": $scope.logoImg,
+				"description": '图片的md5'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "webTitle",
+				"value": $scope.webTitle,
+				"description": '网站标题'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "wenda",
+				"value": $scope.wenda,
+				"description": '问答系统'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "VRxitong",
+				"value": $scope.VRxitong,
+				"description": 'VR系统'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "duankou",
+				"value": $scope.duankou,
+				"description": '端口配置'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "webKey",
+				"value": $scope.webKey,
+				"description": '网站关键字'
+			};
+			data.data[data.data.length] = {
+				"group": "webSite",
+				"key": "webDepict",
+				"value": $scope.webDepict,
+				"description": '网站描述'
+			};
+			
+			var type="adminSystemWebsiteConfigAdd";
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"系统设置成功",function(){
+					//	history.go(0);
+						$state.reload('app.systemWebsite');
+						
+					});
+				} else {
+					alertHtml($modal,"系统设置失败,原因："+statusText);
+				}
+			},$('body'));
+		
+		}
+	}]);
+</script>

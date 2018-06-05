@@ -1,0 +1,206 @@
+﻿
+<div  style="width:100%;margin:auto;margin-bottom:58px;float: left;" ng-controller="homeIndex" id="homeIndex">
+	<div class="typeTest">
+		<div class="typeTestList" style="min-width:100%">
+			<div class="typeTestOne typeTestOne{{x.id}}" ng-click="typeTestOne({{x}})" ng-repeat="x in catagories">{{x.title}}</div>
+		</div>
+		
+	</div>
+        <div style="width:100%;max-height:600px;float:left;padding-top:10px;overflow-y: auto;" when-scrolled="loadMore()">  
+		<span style="text-align: center;width: 100%;float: left;">{{noNews}}</span>
+            <div class="newOne" ng-repeat="x in news" ng-click="contentOne(x)">
+				<img class="newOneImg"  src="{{x.titleImg}}" />
+				<h3 class="newOneHeader">{{x.title}}</h3>
+				<div class="newOneTime">
+					<div style="padding:0px;float:left;margin-right:10px;max-width:33.3%">{{x.author}}</div>
+					<div style="padding:0px;float:left;max-width:33.3%;">浏览量{{x.liulanliang}}</div>
+					<div style="padding:0px;float:right;max-width:33.3%">{{x.addtime}}</div>
+				</div>
+			</div>
+        </div>  
+ </div> 
+
+
+<style>
+	.typeTest{
+		width:100%;height:60px;
+		font-size: 1.2rem;
+		border-bottom:1px solid #800508;
+		overflow-y: hidden;
+		overflow-x: scroll;
+	}
+	.typeTestList{
+		width:auto;
+		height:100%;
+		float:left;
+	}
+	.typeTestOne{
+		width:auto;
+		height:100%;
+		padding:0px 10px;
+		float:left;
+		line-height:60px;
+	}
+	.newOne{
+		width:100%;
+		height:100px;
+		float:left;
+		border-bottom: 1px solid #bfbfbf;
+		padding:10px 15px;
+		
+	}
+	.newOneImg{
+		width:30%;
+		margin-right:2%;
+		height:100%;
+		float:left;
+		object-fit: cover;
+	}
+	.newOneHeader{
+		width:68%;
+		height:50px;
+		line-height:25px;
+		font-weight: 580;
+		font-size:16px;
+		color:#303030;
+		margin:0px;
+		float:left;
+		float:left;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		overflow: hidden;
+	}
+	.newOneTime{
+		width:68%;
+		line-height:20px;
+		float:left;
+		padding-right: 6px;
+	}
+	.typeTestOneActive{
+		color:#800580;
+	}
+	
+</style> 
+ <script>  
+         
+       
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal', function($scope,$state,$timeout,$modal) {
+		
+		//这个控制器中的changeData是转表单数据的方法，在公共js文件中
+		
+		var currentPage =1;
+		$scope.pageSize = 6;
+		$scope.cid = "";
+		$scope.listType = "all";
+		var data = {"id":2};
+		var type="phoneHomeCat";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.catagories=changeList(thisData, 0);
+				getPageList(currentPage,$scope.cid,$scope.listType);
+				$scope.$apply();
+				var w=0;
+				for(var i=0;i<$(".typeTestOne").length;i++){
+					w=w+$(".typeTestOne").eq(i).innerWidth();
+				}
+				$(".typeTestList").css({
+					"width":w+"px"
+				});
+			} else {
+					alertHtml($modal,"获取类别列表失败,原因："+statusText);
+				}
+			},$('body'))
+		
+
+		
+		//根据列表
+		function getPageList(currentPage,cid,allType){
+			if(currentPage<1) currentPage=1;
+			var applyData={"cid":cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+			var type= "phoneHomeList";
+			if(allType=="all"){
+				type= "phoneHomeListAll";
+			}
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var contentData = thisData.list;
+					$scope.total = thisData.total;
+					var newCon = [];
+					if(contentData=="" || contentData==null){
+						$scope.news =[];
+						$scope.noNews = "该分类下无数据"
+						$scope.$apply();
+						return;
+					}
+					for(var i = 0; i < contentData.length; i++) {
+						//if(i<6){
+							newCon.push(changeData(contentData[i]))
+						//}
+					}
+					$scope.noNews = ""
+					$scope.news = newCon;
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}	
+			},$('body')); 
+		}
+		
+		
+		$scope.typeTestOne = function(x){
+			$(".typeTestOne").removeClass("typeTestOneActive");
+			$(".typeTestOne"+x.id).addClass("typeTestOneActive");
+			var currentPage=1;
+			$scope.cid = x.id;
+			$scope.listType = "list";
+			getPageList(currentPage,$scope.cid,$scope.listType)
+		}
+	
+		$scope.contentOne = function(x){
+			
+			$state.go("phoneApp.phoneDetail",{"id":x.id});
+		}
+              
+            //滚动到底部触发事件  
+              
+            $scope.loadMore = function(){    
+			
+				currentPage++;		
+				$scope.pageSize = currentPage*$scope.pageSize;
+				var bigPage = Math.ceil($scope.total/6);
+				consoleLog(bigPage+"  "+currentPage)
+				if(currentPage>bigPage){
+					alertHtml($modal,"没有更多信息");
+				}else{
+					getPageList(1,$scope.cid,$scope.listType);
+				}
+					
+				
+				
+				
+            };  
+              
+        }]);  
+          
+        //滚动指令   
+        app.directive('whenScrolled', function() {    
+            return function(scope, elm, attr) {    
+                // 内层DIV的滚动加载    
+                var raw = elm[0];    
+                elm.bind('scroll', function() {   
+                    if (raw.scrollTop + raw.offsetHeight >= raw.scrollHeight) {   
+                        scope.$apply(attr.whenScrolled);    
+                    };    
+                });    
+            };    
+        });       
+          
+          
+    </script>  

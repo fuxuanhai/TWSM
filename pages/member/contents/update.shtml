@@ -1,0 +1,148 @@
+﻿<div id="updateUser" ng-controller="updateUser">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3" id="addTitle">修改个人信息</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" class="sysSetForm" name="userForm" style="margin:30px auto 30px auto">
+
+						
+						<div class="form-group">
+							<label>账号：</label>
+							<input ng-model="account" />
+							<span style="color:red">{{ accountDes }}</span>
+						</div>
+						<div class="form-group">
+							<label>姓名：</label>
+							<input ng-model="name" />
+							<span style="color:red">{{ nameDes }}</span>
+						</div>
+						
+						<div class="form-group">
+							<label>邮箱：</label>
+							<input ng-model="email"  />
+							<span style="color:red">{{ emailDes }}</span>
+							
+						</div>
+						<div class="form-group">
+							<label>手机：</label>
+							<input ng-model="phone" />
+							<span style="color:red">{{ phoneDes }}</span>
+						</div>
+
+						<button  class="btn btn-sm btn-primary" style="margin-left:130px" ng-click="addUser()">提交</button>
+						
+					</form>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+.schoolName .btn-default{
+	border-color:#a9a9a9;
+}
+</style>
+
+<script>
+
+	app.controller('updateUser', ['$scope','$state','$modal','$stateParams', function($scope,$state,$modal,$stateParams) {
+		
+		//通过id获取用户详情
+		/*var data = {};
+		var type="memberUserGetInfo";
+		applicationService(data,type,function(data) {
+			var thisDate = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				if(thisDate=="" || thisDate==null || thisDate.length==0){
+					return;
+				}
+				$scope.account = thisDate.account;
+				$scope.name = thisDate.name;
+				$scope.email = thisDate.email;
+				$scope.phone = thisDate.phone;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取用户失败,原因："+statusText);
+			}
+		},$('body'));*/
+		
+		var data = {"token":$.cookie('userToken')};
+			var type="memberUserGetInfo";
+			var thisUserID={};
+		applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					if(thisDate=="" || thisDate==null || thisDate.length==0){
+						return;
+					}
+					$scope.account = thisDate.account;
+					$scope.name = thisDate.name;
+					$scope.email = thisDate.email;
+					$scope.phone = thisDate.phone;
+					$scope.$apply();
+				} else {
+					console.log("获取当前用户失败,原因："+statusText);
+				}
+			});
+				
+			
+		
+		$scope.addUser = function() {
+			$scope.schoolDes ="";
+			$scope.accountDes ="";
+			$scope.emailDes = "";
+			$scope.phoneDes = "";
+		
+			
+			if(!captchaLibrary.isNull($scope.account) && !captchaLibrary.isNull($scope.phone) && !captchaLibrary.isNull($scope.email)){
+				$scope.accountDes = "账号，邮箱和手机必填一个，不能全部为空";
+				return;
+			}
+			
+			if(!captchaLibrary.account($scope.account) && captchaLibrary.isNull($scope.account)) {
+				$scope.accountDes = "长度6-32,首位为字母,含有英文字母或者数字或者下划线";
+				return;
+			}
+			
+			if(!captchaLibrary.email($scope.email) && captchaLibrary.isNull($scope.email)) {
+				$scope.emailDes = "邮箱格式错误";
+				return;
+			}
+		
+			if((!captchaLibrary.phone($scope.phone) || !captchaLibrary.length($scope.phone,11,20) ) && captchaLibrary.isNull($scope.phone)) {
+				$scope.phoneDes = "手机号码错误";
+				return;
+			}
+			
+			var data = {
+				"token":$.cookie('userToken'),
+				"account": $scope.account,
+				"name": $scope.name,
+				"phone": $scope.phone,
+				"email": $scope.email
+			};
+			var typeName="memberUserUpdate";
+			applicationService(data,typeName,function(data) {
+				userToken = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"提交成功");
+				} else {
+					alertHtml($modal,"提交失败:" + statusText);
+				}
+			},$('body'));	
+		}
+		
+		
+	}]);
+</script>

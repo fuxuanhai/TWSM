@@ -1,0 +1,116 @@
+﻿<div id="contentList" ng-controller="contentList" style="width:1100px;margin:auto">
+	<div class="row" style="margin:20px auto;">
+		<div class="col-sm-12 col-md-12 col-lg-12" style="background: white;" >
+			<h3 class="text-center">{{content.title}}</h3>
+			<div ng-bind-html = "content.htmlVariable" style="margin-bottom:20px">
+			
+			</div>
+			
+		</div>
+	</div>
+</div>
+<style>
+
+.list-group-item:first-child,.list-group-item:last-child{
+	border-radius:0px;
+}
+.list-group-item{
+	cursor:pointer;
+}
+
+.list-group-item:hover{
+	background: #cccccc;
+}
+
+</style>
+<script>
+
+	app.controller('contentList', ['$scope','$state', '$modal','$stateParams',function($scope,$state,$modal,$stateParams) {
+		
+	
+		$scope.pageSize =1;
+		cid = $stateParams.cid;
+		var applyData = {"cid":cid,"_index":0,"_length":$scope.pageSize};
+		var type= "commonContentsSysnopsis";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				if(thisData.data.length>0){
+					$scope.content = changeData(thisData.data[0]);
+					$scope.$apply();
+				}
+				
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}
+		},$('body'));
+		
+		
+		
+		function changeData(oneContent) {
+
+			var id = oneContent.id;
+			var account = oneContent.account
+			var addTime = oneContent.addtime;
+			var lastTime = oneContent.lasttime;
+			var obj = oneContent.content;
+			var newData = eval(obj);
+			for(var i=0;i<newData.length;i++){
+				switch (newData[i].title){
+					case "标题":
+						title = newData[i].value;
+						break;
+					case "副标题":
+						fuTitle = newData[i].value;
+						break;
+					case "作者":
+						author = newData[i].value;
+						break;
+					case "来源":
+						source = newData[i].value;
+						break;
+					case "添加时间":
+						addTime	= newData[i].value;
+						break;
+					case "封面":
+						src = newData[i].value;
+						break;
+					case "摘要":
+						abstract = newData[i].value;
+						break;
+					case "内容":
+						htmlVariable = newData[i].value;
+						break;
+				}
+			}
+			
+			return {
+				'id': id,
+				'account':account,
+				'addTime': addTime,
+				'lastTime': lastTime,
+				'obj': obj,
+				'title': title,
+				'fuTitle':fuTitle,
+				'author':author,
+				'source':source,
+				'src':src,
+				'abstract':abstract,
+				'htmlVariable':htmlVariable
+				
+			}
+		}
+		
+		
+		$scope.catagoriesOne = function(x){
+			$state.go("commonApp.commonContentsList",{"cid":x.id});
+		}
+		
+		
+		
+		
+	
+	}])
+</script>

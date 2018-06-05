@@ -1,0 +1,374 @@
+﻿<div id="detail" ng-controller="detail" style="width:1100px;margin:auto">
+	<div class="row" style="margin:50px auto;">
+		<div style="width:78%;margin-right:2%;height:auto;float:left;background:#f3eeed">
+			<div style="width:100%;height:42px;line-height:42px;background:#800508;color:white;float:left;">
+				<img src="../contents/imgs//dingwei.png"/>
+				<span>案例分析</span>
+				<span>></span>
+				<span>{{content.title}}</span>
+			</div>
+			
+			<div style="width:100%;height:auto;margin-top:30px;text-align:center;font-size:26px;color:#800508;float:left;border-bottom:1px solid #800508;">
+				{{content.title}}
+			</div>
+			
+			
+			<div style="width:100%;height:40px;line-height:40px;float:left;text-align:center;">
+				<div class="" style="color:#800508;padding:0px 0px 0px 5px;display: inline-block;">案例编号:{{content.number}}</div>
+				<div class=" text-center" style="padding:0px 5px;display: inline-block;">作者:{{content.author}}</div>
+				<div class=" text-center" style="padding:0px 5px;display: inline-block;">行业:{{content.industry}}</div>
+				<div class=" text-center" style="padding:0px 5px;display: inline-block;">{{content.addTime}}
+				</div>
+				<div class=" text-center" style="padding:0px 5px;display: inline-block;">浏览量:{{content.liulanliang}}</div>
+			</div>
+			
+			<div style="width:100%;height:auto;float:left;padding-left:20px">
+				关键词：
+			</div>
+			<div style="width:100%;height:auto;float:left;padding:20px 20px 20px 40px;word-break: break-word;" ng-bind-html="content.key">
+				
+			</div>
+			
+			<div style="width:100%;height:auto;float:left;padding-left:20px">
+				摘要：
+			</div>
+			<div style="width:100%;height:auto;float:left;padding:20px 20px 20px 40px;word-break: break-word;">
+				{{content.anliAbstract}}
+			</div>
+			<div style="width:100%;height:auto;float:left;padding-left:20px">
+				正文：
+			</div>
+			<div ng-bind-html = "content.htmlVariable" style="width:100%;height:auto;float:left;padding:20px 20px 20px 40px;word-break: break-word;" class="zhengwen">
+				
+			</div>
+			<div style="width:100%;height:auto;float:left;padding-left:20px">
+				附件：
+			</div>
+			<!--<div style="width:100%;height:auto;float:left;padding:10px 20px 10px 40px">
+				<a style="text-decoration: underline;color:red;margin-right:20px;" href="{{fujianUrl}}admin/file/download?id={{x.md5}}" ng-repeat="x in content.fujianArr">{{x.fileName}}</a>
+				
+			</div>-->	
+			
+			<div  style="width:100%;height:auto;float:left;padding:10px 20px 10px 40px" >
+				<a style="text-decoration: underline;color:red;margin-right:20px;" href="{{videoUrlFun(x.URL)}}" ng-repeat="x in content.fujianArr">{{x.fileName}}</a>
+				
+			</div>
+			<div  style="width: 96%;height: auto;float: left;padding: 0px;border: 5px solid #BFBFBF;margin: 20px 2%" ng-show="x.videoShow" ng-repeat="x in content.fujianArr">
+				<video ng-show="x.videoShow"  style="width:100%;max-height: 500px;" controls="controls" ng-src="{{videoUrlFun(x.URL)}}"  autoplay>
+				</video>
+				<div style="width:100%;padding-left:10px;height: height;float:left;background:#800508;color:white">
+					<h6 style="padding-top:10px">>>分析生成的标签</h6>
+					<div style="width:100%;height:auto;float:left;margin:10px 0px" ng-repeat="y in x.results">
+						<div class="biaoqian">{{ y.type | baioqianType }}</div>
+						
+						<div style="width:80%;float:left">
+							<div class="biaoqianOne" ng-repeat="z in y.result">
+								<span>{{z.attribute}}</span>
+							</div>
+						</div>
+						
+						
+						
+					</div>
+					
+				</div>
+				
+			</div>
+		
+			<div style="width:100%;height:auto;float:left;text-align:center">
+				<img ng-click="shoucang()" src="{{shoucangUrl}}" style="margin:20px;cursor: pointer" />
+			<!--	<img ng-click="fenxiang()" src="../contents/imgs/fenxiang.png" style="margin:20px" />
+			-->
+			</div>
+			
+			
+			
+		</div>
+		<div class="detailRight">
+			<div class="detailRightHeader">相关案例</div>
+			<div class="detailRightOne" ng-repeat="x in contentList" ng-click="contentOne({{x}})" style="cursor: pointer">
+				<img class="detailRightImg" src="../contents/imgs/home/banner.png" /> 
+				<div class="detailRightText">{{x.title}}</div>
+			</div>
+			<div ng-click="commonContentsList()" style="width:100%;height:50px;line-height:50px;text-align:center;float:left">
+				更多案例>>
+			</div>
+				
+		</div>
+	</div>
+</div>
+<style>
+.detailRight{
+width:20%;height:auto;padding:5px;float:left;border:1px solid #800508;box-sizing:border-box
+}
+.detailRightHeader{
+width:100%;height:50px;line-height:50px;font-size:25px;color:#800508;border-bottom:2px solid #800508;text-align:center
+}
+.detailRightOne{
+width:100%;height:65px;margin-top:20px;border-bottom:1px solid #ccc;float:left
+}
+.detailRightImg{
+width:25%;height:50px;float:left;object-fit:cover;
+}
+.detailRightText{
+width:70%;margin-left:5%;height:50px;float:left;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp: 3;line-height:16px;overflow: hidden;
+}
+.zhengwen img{
+max-width:100%;
+}
+
+.biaoqian{
+    padding: 10px 0px;
+    text-align: center;
+    float: left; 
+    width: 15%;
+  border-radius:5px;
+  background: #6c0706; 
+  background: -webkit-linear-gradient(#ca2429, #4a0504); /* Safari 5.1 - 6.0 */
+  background: -o-linear-gradient(#ca2429, #4a0504); /* Opera 11.1 - 12.0 */
+  background: -moz-linear-gradient(#ca2429, #4a0504); /* Firefox 3.6 - 15 */
+  background: linear-gradient(#ca2429, #4a0504); /* 标准的语法 */
+}
+.biaoqianOne{
+  padding:10px;
+  margin-left:20px;
+  float:left;
+  background: #6c0706; 
+  margin-bottom: 10px;
+}
+.biaoqianOne i{
+	cursor:pointer
+}
+
+</style>
+
+
+
+<script>
+	app.filter('baioqianType', function() { //可以注入依赖
+		return function(type) {
+			if(type=="location"){
+				type = "场景"
+			}else if(type=="entity"){
+				type = "实体";
+			}else if(type=="scenario"){
+				type = "方案";
+			}else if(type=="keyword"){
+				type = "关键字";
+			}else if(type=="time"){
+				type = "时间";
+			}else if(type=="figure"){
+				type = "人物";
+			}
+			return type;
+		}
+	});
+	
+	
+	app.controller('detail', ['$scope','$state', '$modal','$stateParams','$sce',function($scope,$state,$modal,$stateParams,$sce) {
+		
+		if($.cookie("userToken")=="" || $.cookie("userToken")==null){
+			alertHtml($modal,"请登录",function(){
+				var str= cliURL + "pages/index.shtml#/commonApp/home";
+				window.location.href = str;
+				return ;
+			});
+			return ;
+		}
+		
+		
+		
+		
+		$scope.id = $stateParams.id;
+		$scope.cid = $stateParams.cid;
+		$scope.fujianUrl = zeroURL;
+		
+		var dataShoucang={"id":$scope.id}
+		var typeShoucang = "commonContentsDetailGetCollect";
+			applicationService(dataShoucang,typeShoucang,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					if(data.data.total==1){
+						$scope.shoucangUrl = "../contents/imgs/qxsc.png";
+						$scope.isShoucang = false;//该文章是否收藏，true表示已经收藏，false还没收藏
+					}else{
+						$scope.isShoucang = true;		//该文章是否收藏，true表示收藏
+						$scope.shoucangUrl = "../contents/imgs/sc.png";
+					}
+					$scope.$apply();
+					consoleLog("获取收藏成功");
+				} else {
+					consoleLog("获取收藏失败");
+				}
+		},$('body'));
+		
+		
+		
+		
+		$scope.pageSize = pageSize;
+		var currentPage =1;
+		var applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+		var type= "commonContentsDetailList";
+		applicationService(applyData,type,function(data){
+			
+			
+			var thisData = data.data.list
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				getList(thisData);
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}
+		},$('body'));
+				
+		function getList(thisData){
+		
+			var contentData = thisData;
+			var total = thisData.total;
+			$scope.contentList=[];
+			for(var i = 0; i < contentData.length; i++) {
+				$scope.contentList.push(changeData(contentData[i]));
+			}
+			
+		
+			
+			$scope.$apply();
+		}
+		
+		
+		var applyData = {"id":$scope.id};
+		var type= "commonContentsDetailGet";
+		applicationService(applyData,type,function(data){
+			var thisData = data.data[0];
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.content = changeData(thisData);
+				$scope.content.key= $scope.content.key.split(',').join(",&nbsp;&nbsp;&nbsp;");
+				$scope.content.zeroURL = zeroURL;
+				$scope.content.liulanliang = parseInt($scope.content.liulanliang)+1;
+				
+			
+				var applyData2={"id":$scope.id};
+				var typeName2 = "commonContentsDetailVideo";
+				//获取分析结果
+				applicationService(applyData2,typeName2,function(data){
+				
+					var status = data.status;
+					var statusText = data.statusText;
+					var thisData2 = data.data;
+					
+					if(status == 1) {
+						var fujianArr = $scope.content.fujianArr;
+						
+						for(var k=0;k<fujianArr.length;k++){
+							if(fujianArr[k]!=null){
+								var point = fujianArr[k].fileName.lastIndexOf(".")+1; 
+								fujianArr[k].fileType = fujianArr[k].fileName.substr(point); 
+								if(fujianArr[k].fileType=="ogg" || fujianArr[k].fileType=="mp4"){
+									fujianArr[k].videoShow =true;
+								}
+								fujianArr[k].URL = $scope.fujianUrl+"admin/file/download?id="+fujianArr[k].md5;
+								for(var z=0;z<thisData2.length;z++){
+									if(fujianArr[k].md5==thisData2[z].md5){
+										fujianArr[k].results = thisData2[z].results;
+									}
+								}
+							}
+						}
+						$scope.content.fujianArr = fujianArr;
+						$scope.$apply();
+						
+					} else {
+						alertHtml($modal,"视频分析失败,原因："+statusText);
+					}
+				},$('body'));
+				
+				
+				$scope.$apply();
+				
+				var applyData1={};
+				applyData1.id = thisData.id;
+				applyData1.cid = [thisData.cid];
+				applyData1.content = eval(thisData.content.value);
+				applyData1.content[6].value = parseInt(applyData1.content[6].value)+1;
+				
+				var typeName1 = "commonContentsDetailEdit";
+			
+				
+				applicationService(applyData1,typeName1,function(data){
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						consoleLog("添加浏览量成功")
+						
+					} else {
+						consoleLog("添加浏览量失败")
+					}
+				},$('body'));
+				
+				
+			} else {
+				alertHtml($modal,"获取内容详情失败,原因："+statusText);
+			}
+		},$('body'));
+		
+		
+		$scope.videoUrlFun = function(url){
+		
+		//$sce.trustAsResourceUrl方法把普通路径处理加工成一个angular环境可识别，并认为是安全的路径来使用
+        var urlFun = $sce.trustAsResourceUrl(url);
+        return urlFun;
+    };
+		
+		
+		$scope.shoucang = function(){
+			var applyData = {"content_id":[$scope.id]};
+			var type= "commonContentsDetailCollect";
+			$scope.shoucangReture = "收藏";
+			if(!$scope.isShoucang){
+				type= "commonContentsDetailDeleteCollect";
+				applyData = {"id":[$scope.id]};
+				$scope.shoucangReture = "取消收藏";
+			}
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,$scope.shoucangReture+"成功",function(){
+						
+						if($scope.isShoucang){
+							$scope.isShoucang = false;		//该文章是否收藏，true表示收藏
+							$scope.shoucangUrl = "../contents/imgs/quxiaoShoucang.png";
+							
+						}else{
+							$scope.isShoucang = true;	
+							$scope.shoucangUrl = "../contents/imgs/shoucang.png";
+						}
+					});
+				} else {
+					alertHtml($modal,"收藏失败,原因："+statusText);
+				}
+			},$('body'));
+		}
+		
+		$scope.fenxiang = function(){
+			consoleLog("分享了一个案例，ID为"+$scope.id)
+		}
+		
+		$scope.contentOne = function(x){
+			$state.go("commonApp.commonContentsDetail",{"id":x.id,'cid':x.cid});
+		}
+		
+		$scope.commonContentsList = function(){
+				$state.go("commonApp.commonContentsList",{cid:"",typeId:""});
+			}
+		
+		
+		
+	
+	}])
+</script>

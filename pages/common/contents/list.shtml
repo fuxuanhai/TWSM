@@ -1,0 +1,486 @@
+﻿<div id="contentList" ng-controller="contentList" style="margin:auto" class="container">
+	<div class="row" style="margin:50px auto;">
+		<div  class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding-left:0px">
+			<div class="contentListHeader">案例库</div>
+			<div class="contentList" ng-click="commonContentsType()">案例分类</div>
+			<div class="contentList contentListActive" ng-click="commonContentsList()">最新案例</div>
+			<div class="contentList" id="commonContentsList1" ng-click="commonContentsList(1)">热门案例</div>
+			<div class="contentList" id="commonContentsList2" ng-click="commonContentsList(2)">精品案例</div>
+			<div class="contentList" id="commonContentsList3" ng-click="commonContentsList(3)">视频案例</div>
+			<div class="contentList" id="commonContentsList4" ng-click="commonContentsList(4)">音频案例</div>
+			<div class="contentList" id="commonContentsList5" ng-click="commonContentsList(5)">文本案例</div>
+		</div>
+		
+		<div class=" col-xs-9 col-sm-9 col-md-9 col-lg-9 " style="background: white;padding:0px">
+			<div style="float:left">
+				<div class="row wrapper" style="padding-top:10px;padding-bottom:10px">
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+						<div class="input-group" style="z-index:900">
+							<span class="input-group-btn">  
+								<div class="btn btn-sm btn-default btnLable">案例编号</div>
+							 </span> 
+							<input type="text" ng-model="number" class="input-sm form-control">
+						</div>
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+						<div class="input-group" style="z-index:900">
+							<span class="input-group-btn">
+								<div class="btn btn-sm btn-default btnLable">案例题目</div>
+							 </span>
+							<input type="text" ng-model="title" class="input-sm form-control">
+						</div>
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+						<div class="input-group" style="z-index:900">
+							<span class="input-group-btn">
+								<div class="btn btn-sm btn-default btnLable">作者</div>
+							 </span>
+							<input type="text" ng-model="author" class="input-sm form-control">
+						</div>
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+						<div class="input-group" style="z-index:990">
+							<span class="input-group-btn">
+								<div class="btn btn-sm btn-default btnLable">案例语种</div>
+							 </span>
+							<div style="display:inline-block;padding-left:0px;width:100%;" class="selectMune">
+								<ui-select ng-model="language.selected" theme="bootstrap" >
+									<ui-select-match >{{$select.selected.name}}</ui-select-match>
+									<ui-select-choices repeat="item in language | filter: $select.search">
+										<div ng-bind-html="item.name | highlight: $select.search"></div>
+									</ui-select-choices>
+								</ui-select>
+							</div>
+						</div>
+					</div>
+					
+					
+					
+				</div>
+				<div class="row wrapper" style="padding-top:0px;padding-bottom:10px">
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+						<div class="input-group" style="z-index:900">
+							<span class="input-group-btn">
+								<div class="btn btn-sm btn-default btnLable">案例分类</div>
+							 </span>
+							<div style="display:inline-block;padding-left:0px;width:100%;" class="selectMune">
+								<ui-select ng-model="catagories.selected" theme="bootstrap" >
+									<ui-select-match >{{$select.selected.title}}</ui-select-match>
+									<ui-select-choices repeat="item in catagories | filter: $select.search">
+										<div ng-bind-html="item.title | highlight: $select.search"></div>
+									</ui-select-choices>
+								</ui-select>
+							</div>
+						</div>
+					</div>
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+						<div class="input-group" style="z-index:900">
+							<span class="input-group-btn">
+								<div class="btn btn-sm btn-default btnLable">关键词</div>
+							</span>
+							<input type="text" ng-model="key" class="input-sm form-control">
+							<span class="input-group-btn">
+								<button class="btn btn-sm btn-default" style="height:30px;margin-left:20px;" ng-click="searchGo()" type="button">查询</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<hr style="width:100%;border-bottom: 3px solid #800508;" />
+			<!-- <div class="container">
+				<div class="row"> -->
+
+			
+			<div style="width:100%;float:left" class="">
+				<div class="searchList" ng-repeat="x in contentList" ng-click="contentOne({{x}})" style="cursor:pointer">
+					<img class="searchListImg" src="{{x.titleImg}}" />
+					<div class="searchRight">
+						<div class="searchRightTest">
+							<span style="color:#800508">{{x.number}}</span>
+							<span style="margin-left:10px">作者:{{x.author}}</span>
+						</div>
+						<div class="searchRightTest" style="height:40px;line-height:40px;">
+							<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9" style="padding:0px;font-size:16px">{{x.title}}</div>
+							<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 text-right">{{x.addTime}}</div>
+						</div>
+						<div class="searchRightTest" >
+							<div></div>
+							<!-- <div class="col-sm-2 col-md-2 col-lg-2 wordOver" style="padding:0px">{{x.liulanliang}}人浏览</div> -->
+							<div class="col-sm-2 col-md-2 col-lg-2 wordOver" style="padding:0px">语种：{{x.language}}</div>
+							<div class="col-sm-4 col-md-4 col-lg-4 wordOver">关键词：{{x.key}}</div>
+							<div class="col-sm-4 col-md-4 col-lg-4 wordOver">{{x.type}}</div>
+						</div>
+					
+					</div>
+				
+				</div>
+			
+			</div>
+		<!-- </div>
+	</div>
+			 -->
+			<div style="width:100%;height:40px;text-align:center;line-height:40px;color:white;margin-top:46px;background:#303030;float:left">
+				<div class="pageDiv" style="width:11%;height:40px;float:left" ng-click="pageClick(prevPage)">
+					上一页
+				</div>
+				<div class="pageDiv" style="width:5%;height:40px;float:left" ng-repeat="x  in pages" ng-click="pageClick({{x}})">
+							{{x}}</div>
+				<div class="pageDiv" style="width:11%;height:40px;float:left" ng-click="pageClick(nextPage)">下一页</div>
+				<div style="width:20%;height:40px;float:left;margin-left:20px">共{{pageCount}}页</div>
+				
+				<div class="pageDiv" style="width:6%;height:40px;float:right;margin-right:30px;" ng-click="pageGo()">Go</div>
+				<div style="width:5%;height:40px;float:right;">页</div>
+				<input type="text" style="text-align:center;background:transparent;width:4%;height:30px;margin-top:5px;float:right;" ng-model="goPage"/>
+				<div style="width:8%;height:40px;float:right;">跳转到</div>
+			</div>
+			
+		</div>
+	</div>
+</div>
+<style>
+.contentListHeader{
+	height:70px;line-height:70px;text-align:center;color:white;font-size:24px;background:#800508
+}
+.contentList{
+	height:60px;line-height:60px;text-align:center;color:white;font-size:20px;background:#303030;
+	border-bottom:1px solid #404040;
+	cursor:pointer;
+}
+.contentListActive{
+	background:#6c0706
+}
+.contentList:hover{
+	background:#6c0706
+}
+.btnLable{
+padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;
+}
+.selectMune ul{
+	margin-top:30px;
+}
+.searchList{
+width:100%;height:110px;margin-bottom:5px;padding:5px;float:left;border: 1px solid #d9b3b4;
+}
+.searchListImg{
+	width:15%;height:100%;float:left;object-fit: cover;
+}
+.searchRight{
+float:left;width:83%;margin-left:2%
+}
+.searchRightTest{
+width:100%;height:30px;line-height:30px;float:left
+}
+.dropdown-menu{
+min-width:auto;
+}
+.pageDiv{
+	cursor:pointer;
+}
+.pageDiv:hover{
+	background:#800508;
+}
+.pageDivActive{
+	background:#800508;
+}
+.wordOver{
+overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+}
+
+</style>
+<script>
+app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('contentList', ['$scope','$state', '$modal','$stateParams',function($scope,$state,$modal,$stateParams) {
+		$scope.pageSize = pageSize;
+		var currentPage =1;
+		$scope.language=[{"name":'中文',"id":0},{"name":'英文',"id":1}];
+		
+		$scope.cid = $stateParams.cid;
+		$scope.typeId = $stateParams.typeId;
+		
+		if($scope.typeId!="" && $scope.typeId!=null){
+			$(".contentListActive").removeClass("contentListActive");
+			$("#commonContentsList"+$scope.typeId).addClass("contentListActive");
+		}
+		
+		
+		var data = {"id":2};
+		var type="commonContentsListCat";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.catagories=changeList(thisData, 0);
+				
+				for(var j=0;j<$scope.catagories.length;j++){
+					if($scope.catagories[j].id == $scope.cid){
+						$scope.catagories.selected=$scope.catagories[j];
+					}
+				}
+			//	var type= "commonContentsList";
+				var type= "commonContentsListAll";
+				if($scope.cid=="" || $scope.cid==null){
+					$scope.cid = 2;
+				}
+				
+				var applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[{'title':'案例类型',value:[parseInt($scope.typeId)]}]};
+				
+				if($scope.typeId=="" || $scope.typeId==null ){
+					
+					applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+					//type= "commonContentsListAll";
+				}
+				
+				
+				applicationService(applyData,type,function(data){
+					var thisData = data.data;
+					var status = data.status;
+						
+					var statusText = data.statusText;
+					if(status == 1) {
+						getList(thisData);
+					} else {
+						alertHtml($modal,"获取内容列表失败,原因："+statusText);
+					}
+				},$('body'));
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+		
+		
+		
+		function getList(thisData){
+			var contentData = thisData.list;
+			var total = thisData.total;
+			$scope.contentList=[];
+			for(var i = 0; i < contentData.length; i++) {
+				$scope.contentList.push(changeData(contentData[i],$scope.catagories));
+			}
+			
+			page($scope, total, currentPage,$scope.pageSize);
+			
+			var objPages = $(".pageDiv");
+			$(".pageDiv").removeClass("pageDivActive");
+			for(var i=0;i<$(".pageDiv").length;i++){
+				if($(".pageDiv").eq(i).text()==currentPage){
+					$(".pageDiv").eq(i).addClass("pageDivActive");
+				}
+			}
+			$scope.$apply();
+		}
+		
+		
+		
+		
+	
+		
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var cid = "";
+			var applyData={"cid":cid,"pn":currentPage,"pc":$scope.pageSize,condition:[{'title':'案例类型',value:[parseInt($scope.typeId)]}]};
+			
+			var type= "commonContentsList";
+			if($scope.typeId=="" || $scope.typeId==null){
+					$scope.cid = 2;
+					applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+					type= "commonContentsListAll";
+				}
+			
+			if(captchaLibrary.isNull($scope.number)){
+				applyData.condition.push({'title':'案例编号',value:$scope.number})
+			}
+			if(captchaLibrary.isNull($scope.title)){
+				applyData.condition.push({'title':'案例题目',value:$scope.title})
+			}
+			if(captchaLibrary.isNull($scope.key)){
+				applyData.condition.push({'title':'关键词',value:$scope.key})
+			}
+			if(captchaLibrary.isNull($scope.author)){
+				applyData.condition.push({'title':'案例作者',value:$scope.author})
+			}
+			
+			if(captchaLibrary.isNull($scope.catagories.selected)){
+				
+				cid = $scope.catagories.selected.id;
+				applyData.cid = cid;
+			}
+			
+			if(captchaLibrary.isNull($scope.language.selected)){
+				applyData.condition.push({'title':'案例语种',value:""+$scope.language.selected.id})
+			}
+			
+			
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+					
+				var statusText = data.statusText;
+				if(status == 1) {
+					getList(thisData);
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}
+			},$('body'));
+
+		}
+		
+		//跳转到第几页的Go事件
+		$scope.pageGo = function() {
+			currentPage = parseInt($scope.goPage);
+			
+			var cid = "";
+			var applyData={"cid":cid,"pn":currentPage,"pc":$scope.pageSize,condition:[{'title':'案例类型',value:[parseInt($scope.typeId)]}]};
+			var type= "commonContentsList";
+			if($scope.typeId=="" || $scope.typeId==null){
+					$scope.cid = 2;
+					applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+					type= "commonContentsListAll";
+				}
+			
+			if(captchaLibrary.isNull($scope.number)){
+				applyData.condition.push({'title':'案例编号',value:$scope.number})
+			}
+			if(captchaLibrary.isNull($scope.title)){
+				applyData.condition.push({'title':'案例题目',value:$scope.title})
+			}
+			if(captchaLibrary.isNull($scope.key)){
+				applyData.condition.push({'title':'关键词',value:$scope.key})
+			}
+			if(captchaLibrary.isNull($scope.author)){
+				applyData.condition.push({'title':'案例作者',value:$scope.author})
+			}
+			
+			if(captchaLibrary.isNull($scope.catagories.selected)){
+				
+				cid = $scope.catagories.selected.id;
+				applyData.cid = cid;
+			}
+			
+			if(captchaLibrary.isNull($scope.language.selected)){
+				applyData.condition.push({'title':'案例语种',value:""+$scope.language.selected.id})
+			}
+			
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+					
+				var statusText = data.statusText;
+				if(status == 1) {
+					getList(thisData);
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}
+			},$('body'));
+
+		}
+		
+		//搜索事件
+		$scope.searchGo = function(x){
+			var currentPage =1;
+			var cid = "";
+			var applyData={"cid":cid,"pn":currentPage,"pc":$scope.pageSize,condition:[{'title':'案例类型',value:[parseInt($scope.typeId)]}]};
+			var type= "commonContentsList";
+			
+			if($scope.typeId=="" || $scope.typeId==null){
+					$scope.cid = 2;
+					applyData=  {"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+					type= "commonContentsListAll";
+				}
+			if(captchaLibrary.isNull($scope.number)){
+				applyData.condition.push({'title':'案例编号',value:$scope.number})
+			}
+			if(captchaLibrary.isNull($scope.title)){
+				applyData.condition.push({'title':'案例题目',value:$scope.title})
+			}
+			if(captchaLibrary.isNull($scope.key)){
+				applyData.condition.push({'title':'关键词',value:$scope.key})
+			}
+			if(captchaLibrary.isNull($scope.author)){
+				applyData.condition.push({'title':'案例作者',value:$scope.author})
+			}
+			
+			if(captchaLibrary.isNull($scope.catagories.selected)){
+				
+				cid = $scope.catagories.selected.id;
+				applyData.cid = cid;
+			}
+			
+			if(captchaLibrary.isNull($scope.language.selected)){
+				applyData.condition.push({'title':'案例语种',value:""+$scope.language.selected.id})
+			}
+			
+			
+			
+			applicationService(applyData,type,function(data){
+					var thisData = data.data;
+					var status = data.status;
+						
+					var statusText = data.statusText;
+					if(status == 1) {
+						getList(thisData);
+					} else {
+						alertHtml($modal,"获取内容列表失败,原因："+statusText);
+					}
+				},$('body'));
+		}
+		
+		
+		$scope.commonContentsList = function(mun){
+			$state.go("commonApp.commonContentsList",{cid:"",typeId:mun});
+		}
+		
+		$scope.commonContentsType = function(mun){
+			$state.go("commonApp.commonContentsType");
+		}
+		
+		$scope.contentOne = function(x){
+			if($.cookie("userToken")=="" || $.cookie("userToken")==null){
+					alertHtml($modal,"请登录");
+					return ;
+				}
+			$state.go("commonApp.commonContentsDetail",{"id":x.id,'cid':x.cid});
+		}
+		
+		
+		
+		
+		
+	
+	}])
+</script>

@@ -1,0 +1,247 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">类别管理</h1>
+</div>
+<div class="wrapper-md" id="catagoryManage" ng-controller="catagoryManage" ng-init="">
+
+	<div class="panel panel-default">
+		<div class="row wrapper" style="padding:0px;margin:0px">
+			<!-- 左边类别列表  -->
+			<div class="col-sm-2 bg-gray-only" style="border-right:1px solid #cfd6d8">
+				<ul class="list-group no-bg no-borders pull-in">
+					<li class="list-group-item" style="border-bottom:1px solid #cfd6d8;padding: 0px;min-height: 40px;line-height: 40px;padding-left: 10px;cursor:pointer;" id="oneMune{{ x.id }}" ng-click="getCatagoriesInfo({{x.id}},$event)" indexNum="0" ng-repeat=" x in typeMune">
+						{{ x.title }}
+					</li>
+
+					<li class="list-group-item" style="border-bottom:1px solid #cfd6d8;background: #c4c4c4;">
+						<div ng-click="addCatagories()" style="cursor:pointer;"> 添加类别</div>
+					</li>
+				</ul>
+			</div>
+
+			<!-- 右边  -->
+			<div class="col-sm-10">
+
+				<!-- 右边头部  -->
+				<div class="row bg-gray-only" style="padding: 5px 0px;">
+					<div class="col-sm-6" style="line-height:30px">
+						编辑类别
+					</div>
+					<div class="col-sm-6 text-right">
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="delete()">删除</button>
+						<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="sort(1)">上移</button>
+						<button class="btn btn-sm btn-primary" ng-click="sort(2)">下移</button>
+					</div>
+				</div>
+				<!-- 右边表单  -->
+				<div class="row">
+					<form role="form" style="width:80%;margin:30px auto 30px 10%">
+
+						<div class="form-group" style="min-height:30px">
+							<label class="col-sm-3 control-label text-right">上级类别</label>
+							<div class="col-sm-6">
+								<select id="select1" class="form-control col-sm-5" ng-model="select1">
+									<option value="0">顶层类别</option>
+									<option value="{{ x.id }}" ng-repeat=" x in typeMune" obj="{{ x }}">{{ x.title }}</option>
+
+								</select>
+							</div>
+						</div>
+						<div class="form-group" style="min-height:30px">
+							<label class="col-sm-3 control-label text-right">类别标题</label>
+							<div class="col-sm-6">
+								<input ng-model="title" style="width:100%;height:30px" />
+								
+							</div>
+							<span class="col-sm-3" style="color:red">{{ titleDes }}</span>
+						</div>
+						
+						<div class="form-group" style="min-height:30px">
+							<label class="col-sm-3 control-label text-right">是否发布</label>
+							<div class="col-sm-6">
+								<label class="i-checks m-b-none">
+									<input type="checkbox" ng-model="isPublish"><i></i>是
+								 </label>
+							</div>
+						</div>
+						
+
+						<button id="tijiaoMune" class="btn btn-sm btn-primary" style="margin-left:200px" ng-click="submitFrom()">提交</button>
+					</form>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+<style>
+.list-group.no-bg .activeMune{
+	background:#bdb4b4;
+}
+
+
+</style>
+
+<script>
+
+app.controller('catagoryManage', ['$scope','$modal', '$state', function($scope,$modal, $state) {
+	$scope.isPublish=false;
+	
+
+		
+		$scope.id="";
+		//获取类别的列表
+		var data = {};
+		var type="adminCatagoriesList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.select1=0;
+				
+				$scope.typeMune = changeList(thisData, 0)
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+		
+			//添加类别的按钮事件
+		$scope.addCatagories = function(id){
+			$scope.id="";
+			$scope.title="";
+			$scope.select1=0;
+			$scope.isPublish = false;
+			$("li").removeClass('activeMune');
+		}
+		
+		//获取类别详情
+		$scope.getCatagoriesInfo = function(id,$event){
+			$("li").removeClass('activeMune');
+			$($event.target).addClass('activeMune');
+			
+			var type="adminCatagoriesGet";
+			var data = {"id":id};
+			
+			applicationService(data,type,function(data) {
+				
+				var thisDate = data.data[0];
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					
+					$scope.id=thisDate.id;
+					$scope.title=thisDate.title;
+					$scope.select1=thisDate.pid;
+					$scope.isPublish = thisDate.ispublish;
+					$scope.$apply();
+					
+				}else{
+					alertHtml($modal,"获取类别详情失败，原因："+statusText)
+				}
+			},$('body'))
+		}
+		
+		//提交表单内容，添加或者修改用户
+		$scope.submitFrom = function(){
+			
+			if($scope.title=="" || $scope.title==null){
+				$scope.titleDes = "类别标题不能为空";
+				return false;
+			}
+			
+			var type="adminCatagoriesEdit";
+			var data = {
+				"id":$scope.id,
+				"pid":$scope.select1,
+				"title":$scope.title,
+				"isPublish":$scope.isPublish,
+
+			};
+			
+			
+			if($scope.id==null || $scope.id==""){
+				type="adminCatagoriesAdd";
+				data = {
+					"pid":$scope.select1,
+					"title":$scope.title,
+					"isPublish":$scope.isPublish
+				};
+			}else if($scope.id==$scope.select1){
+				alertHtml($modal,"上级类别不能是自己本身");
+				return false;
+			}
+			//提交类别信息
+			
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"提交成功",function(){
+						$state.reload('app.catagoriesList')
+					});
+				}else{
+					alertHtml($modal,"提交失败，原因："+statusText);
+				}
+			},$('body'))	
+		}
+		
+		//删除事件
+		$scope.delete=function(){
+			if($scope.id==null || $scope.id==""){
+				alertHtml($modal,"请选择类别");
+				return ;
+			}
+			deleteHtml($modal,"确定删除该类别吗?",deleteGroup,$scope.id);
+			function deleteGroup(id){
+				//删除类别
+				var type="adminCatagoriesDelete";
+				var data = {"id":id}
+				applicationService(data,type,function(data) {
+					var thisDate = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							$state.reload('app.catagoriesList')
+						});
+						
+					}else{
+						alertHtml($modal,"删除失败，原因："+statusText);
+					}
+				},$('body'))
+			}
+		}
+		
+		//上下移排序事件
+		$scope.sort = function(sorkType){
+			
+			//上下移类别
+			var type="adminCatagoriesSort";
+			
+			if($scope.id==null || $scope.id==""){
+				alertHtml($modal,"请选择类别");
+				return ;
+			}
+			var data = {"id":$scope.id,"type":sorkType};
+			applicationService(data,type,function(data) {
+				var thisDate = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功",function(){
+						$state.reload('app.catagoriesList')
+					});
+					
+				}else{
+					alertHtml($modal,"操作失败，原因："+statusText);
+				}
+			},$('body'))
+		}
+	
+	}]);
+</script>

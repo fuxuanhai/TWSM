@@ -1,0 +1,98 @@
+<div class="aside-wrap" style="overflow: auto;">
+  <!-- if you want to use a custom scroll when aside fixed, use the slimScroll
+    <div class="navi-wrap" ui-jq="slimScroll" ui-options="{height:'100%', size:'8px'}">
+  -->
+  
+
+    <!-- nav -->
+	<nav ui-nav class="navi">
+	 <ul class="nav" >
+		<li ui-sref-active="active">
+			<a ui-sref="memberApp.memberUserUpdate">
+			  <span>个人信息</span>
+			</a>
+		</li>
+		<li id="leftMuneList" ng-controller="leftMuneList">
+			<a href class="auto">
+				<span class="pull-right text-muted">
+					<i class="fa fa-fw fa-angle-right text"></i>
+					<i class="fa fa-fw fa-angle-down text-active"></i>
+				</span>			
+				<span class="font-bold" >内容管理</span>
+			</a>
+			<ul class="nav nav-sub dk" >
+			  <li ui-sref-active="active" class="catagoriesLi" cid="{{x.id}}" ng-repeat="x in leftMuneList">
+				<a ng-click="leftMuneOne({{x}})">
+				  <span>{{x.title}}</span>
+				</a>
+			  </li>
+			  
+			</ul>
+		</li>
+		<li ui-sref-active="active" >
+			<a ui-sref="commonApp.home">
+			  <span>进入首页</span>
+			</a>
+		</li>
+	</ul>
+</nav>
+    <!-- nav -->
+
+    
+</div>
+<style>
+.navi ul.nav li a{
+text-align: left;
+}
+</style>
+ <script>
+	app.controller('leftMuneList', ['$scope','$state', '$modal',function($scope,$state,$modal) {
+		//递归转换数据格式，把集合中list和他的子集合children，合并成一元数组options;
+		function changeList(list, deep) {
+			var options = [];
+			var pre = '|-';
+			var tmp = deep;
+			if(deep > 0) {
+				while(tmp > 0) {
+					pre += '--';
+					tmp--;
+				}
+			}
+			for(var i = 0; i < list.length; i++) {
+				list[i].text = list[i].title;
+				list[i].title = pre + list[i].title;
+				options[options.length] = list[i];
+				if(list[i].children) {
+					var child = changeList(list[i].children, deep + 1);
+					options = options.concat(child);
+				}
+			}
+			return options;
+		}
+			//获取类别的列表
+		var data = {};
+		var type="memberAsideCatList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				
+				$scope.leftMuneList = changeList(thisData, 0)
+				
+				$scope.$apply();
+				
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		$scope.leftMuneOne = function(obj){
+			$state.go("memberApp.memberContentsList",{"cid":obj.id,'catagoriesName':obj.text});
+		}
+		
+		
+		
+		
+	}]);
+</script>

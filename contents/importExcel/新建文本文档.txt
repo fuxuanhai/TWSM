@@ -1,0 +1,134 @@
+//html代码
+<input type="file" class="btn btn-sm btn-primary" name="xlfile" id="xlf" style=""/>
+
+
+
+//js代码
+//导入excel表格的调用
+		var X = XLSX;
+		var XW = {
+			/* worker message */
+			msg: 'xlsx',
+			/* worker scripts */
+			worker: '../contents/js-xlsx-master/xlsxworker.js'
+		};
+		var global_wb;
+		var process_wb = (function() {
+			//var OUT = document.getElementById('out');
+			//var HTMLOUT = document.getElementById('htmlout');
+			var to_csv = function to_csv(workbook) {
+				var result = [];
+				workbook.SheetNames.forEach(function(sheetName) {
+					var csv = X.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+					if(csv.length){
+						result.push("SHEET:" + sheetName);
+						result.push("");
+						result.push(csv);
+					}
+				});
+				//console.log(result.join("\n"))
+				return result;
+			};
+
+			return function process_wb(wb) {
+				global_wb = wb;
+				var output = "";
+				
+				output = to_csv(wb);
+				console.log(output);
+				var listData = output[2].split("\n");
+				console.log(listData);
+				var list =[];
+				for(var i=1;i<(listData.length-1);i++){
+					var listD = listData[i].split(",");
+					var keyArray =["account","name","idnumber","email","phone","pwd"];
+					var length =list.length
+					list[length]={};
+					for(var j=0;j<listD.length;j++){
+						list[length][keyArray[j]+""]=listD[j];
+					}
+				}
+				
+				var sid = $(".active").attr('mun')
+				var data={"sid":sid,"list":list}
+				var url = zeroURL+'zero/api/users/import.do';
+				console.log(data);
+				/*apiRequest(url,data,function(data){
+					userToken = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status==1){
+						alert("导入成功");
+					}else{
+						alert(statusText);
+					}
+				});*/
+			};
+		})();
+
+		var do_file = (function() {
+			var rABS = typeof FileReader !== "undefined" && (FileReader.prototype||{}).readAsBinaryString;
+
+
+			var use_worker = typeof Worker !== 'undefined';
+
+			var xw = function xw(data, cb) {
+				var worker = new Worker(XW.worker);
+				worker.onmessage = function(e) {
+					switch(e.data.t) {
+						case 'ready': break;
+						case 'e': console.error(e.data.d); break;
+						case XW.msg: cb(JSON.parse(e.data.d)); break;
+					}
+				};
+				worker.postMessage({d:data,b:rABS?'binary':'array'});
+			};
+
+			return function do_file(files) {
+				//rABS = true;
+				//use_worker = true;
+				var f = files[0];
+				
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					if(typeof console !== 'undefined') console.log("onload", new Date(), rABS, use_worker);
+					var data = e.target.result;
+					if(!rABS) data = new Uint8Array(data);
+					if(use_worker) xw(data, process_wb);
+					else process_wb(X.read(data, {type: rABS ? 'binary' : 'array'}));
+					
+				};
+				if(rABS) reader.readAsBinaryString(f);
+				else reader.readAsArrayBuffer(f);
+			};
+		})();
+
+		(function() {
+			var xlf = document.getElementById('xlf');
+			if(!xlf.addEventListener) return;
+			function handleFile(e) { 
+				var filesName = e.target.files[0].name;
+				var ext = filesName.substring(filesName.lastIndexOf('.'));
+				console.log()
+				if(ext=="" || ext==null){
+					alertHtml($modal,"请导入excel表格");
+					return;
+				}else if(ext!=".xls" && ext!=".xlsx"){
+					alertHtml($modal,"请导入excel表格");
+					return;
+				}
+				do_file(e.target.files); 
+			}
+			xlf.addEventListener('change', handleFile, false);
+		})();
+
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-36810333-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			//ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			ga.src = '../contents/js-xlsx-master/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();

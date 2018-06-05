@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="app">
+<head>
+  <meta charset="utf-8" />
+
+  <meta http-equiv="Pragma" content="no-cache">    
+  <meta http-equiv="Cache-Control" content="no-cache">    
+  <meta http-equiv="Expires" content="0"> 
+  <title>{{appTittle}}</title>
+  <meta name="description" content="app, web app, responsive, responsive layout, admin, admin panel, admin dashboard, flat, flat ui, ui kit, AngularJS, ui route, charts, widgets, components" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <link rel="stylesheet" href="../contents/angular/css/bootstrap.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/angular/css/animate.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/angular/css/font-awesome.min.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/angular/css/simple-line-icons.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/angular/css/font.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/css/app.css" type="text/css" />
+  <link rel="stylesheet" href="../contents/ueditor/third-party/webuploader/webuploader.css" />
+ 
+</head>
+<body ng-controller="AppCtrl">
+   
+  <div class="app" id="app" ng-class="{'app-header-fixed':app.settings.headerFixed, 'app-aside-fixed':app.settings.asideFixed, 'app-aside-folded':app.settings.asideFolded, 'app-aside-dock':app.settings.asideDock, 'container':app.settings.container}" ui-view></div>
+
+  <!-- jQuery -->
+  <script src="../contents/angular/vendor/jquery/jquery.min.js"></script>
+<!--  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-ajaxtransport-xdomainrequest/1.0.3/jquery.xdomainrequest.min.js" type="text/javascript" charset="utf-8"></script>-->
+  <script type="text/javascript" src="../contents/combobox/jquery.easyui.min.js"></script>
+  <script src="../contents/angular/vendor/jquery/jquery.cookie.js"></script>
+  
+  <script src="../contents/js/md5.min.js"></script>
+   <script src="../contents/js/acp.js"></script>
+  <script src="../frame.js"></script>
+   <!-- yanzhegnku -->
+  <script src="../contents/js/captchaLibrary.js"></script>
+
+  <script src="../contents/js/publicFunction.js"></script>
+  <!-- erweima -->
+  <script src="../contents/js/qrcode.js"></script>
+  <!-- time -->
+  <script src="../contents/My97DatePicker/WdatePicker.js"></script>
+  
+<script>
+		
+		
+		var zeroURL=window.API.zeroURL;
+	//	var zeroURL = "http://192.168.11.225:3721/";
+		var cliURL=window.location.protocol+"//"+window.location.host+"/"+window.location.pathname.split("/")[1]+"/";
+		var sid = $.cookie("sid");
+		var userToken = "用户令牌";
+		var pageSize = 15; 
+		var  currentStr= window.location.href;
+		if($.cookie("userToken")=="" || $.cookie("userToken")==null){
+			
+			if(currentStr.indexOf('/app/')>-1){
+				var str= cliURL + "pages/index.shtml#/app/login";
+				window.location.href = str;
+			}
+			if(currentStr.indexOf('/memberApp/')>-1){
+				var str= cliURL + "pages/index.shtml#/memberApp/login";
+				window.location.href = str;
+				
+			}
+		}else if(currentStr.indexOf('/app/')>-1){
+			if(($.cookie("sid")& 1)==1){
+				
+			}else{
+				var str= cliURL + "pages/index.shtml#/app/login";
+				window.location.href = str;
+			}
+		}
+	
+		
+		
+  </script>
+  
+  
+  
+  <!-- 百度上传文件插件 -->
+  <script src="../contents/ueditor/acp.uploader.js"></script>
+  <script src="../contents/ueditor/third-party/webuploader/webuploader.js"></script>
+
+  <!-- 百度编辑器插件-->
+  <script src="../contents/ueditor/ueditor.config.js"></script>
+  <script src="../contents/ueditor/ueditor.all.min.js"></script>
+  
+  <!-- 插件调用文件-->
+  <script src="../contents/js/plug-in.js"></script>
+
+  <!-- Angular -->
+  <script src="../contents/angular/vendor/angular/angular.js"></script>
+  
+  <script src="../contents/angular/vendor/angular/angular-animate/angular-animate.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-cookies/angular-cookies.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-resource/angular-resource.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-sanitize/angular-sanitize.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-touch/angular-touch.js"></script>
+<!-- Vendor -->
+  <script src="../contents/angular/vendor/angular/angular-ui-router/angular-ui-router.js"></script> 
+  <script src="../contents/angular/vendor/angular/ngstorage/ngStorage.js"></script>
+
+  <!-- bootstrap -->
+  <script src="../contents/angular/vendor/angular/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <!-- lazyload -->
+  <script src="../contents/angular/vendor/angular/oclazyload/ocLazyLoad.js"></script>
+  <!-- translate -->
+  <script src="../contents/angular/vendor/angular/angular-translate/angular-translate.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-translate/loader-static-files.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-translate/storage-cookie.js"></script>
+  <script src="../contents/angular/vendor/angular/angular-translate/storage-local.js"></script>
+
+  <!-- App -->
+  <script src="../contents/angular/js/app.js"></script>
+  <script src="../contents/js/config.js"></script>
+  <script src="../contents/js/config.lazyload.js"></script>
+  <script src="../contents/js/config.router.js"></script>
+  <script src="../contents/js/main.js"></script>
+  <script src="../contents/angular/js/services/ui-load.js"></script>
+  <script src="../contents/angular/js/filters/fromNow.js"></script>
+  <script src="../contents/angular/js/directives/setnganimate.js"></script>
+  <script src="../contents/angular/js/directives/ui-butterbar.js"></script>
+  <script src="../contents/angular/js/directives/ui-focus.js"></script>
+  <script src="../contents/angular/js/directives/ui-fullscreen.js"></script>
+  <script src="../contents/angular/js/directives/ui-jq.js"></script>
+  <script src="../contents/angular/js/directives/ui-module.js"></script>
+  <script src="../contents/angular/js/directives/ui-nav.js"></script>
+  <script src="../contents/angular/js/directives/ui-scroll.js"></script>
+  <script src="../contents/angular/js/directives/ui-shift.js"></script>
+  <script src="../contents/angular/js/directives/ui-toggleclass.js"></script>
+  <script src="../contents/angular/js/directives/ui-validate.js"></script>
+  <script src="../contents/angular/js/controllers/bootstrap.js"></script>
+  <!-- Lazy loading -->
+</body>
+</html>

@@ -1,0 +1,238 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">机构列表</h1>
+</div>
+<div class="wrapper-md" id="permissionList" ng-controller="permissionList">
+
+	<div class="panel panel-default">
+		<div class="row wrapper">
+			<div class="col-sm-6 col-xs-12">
+				<div class="input-group" style="z-index:900">
+						
+						 <span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">关键词</div>
+						 </span>
+						<input type="text" ng-model="searchTest" class="input-sm form-control">
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default" style="height:30px;margin-left:20px;" ng-click="searchGo()" type="button">查询</button>
+						 </span>
+					</div>
+					
+			</div>
+			<div class="col-sm-6 m-b-xs text-right">
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="add()">添加</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="update()">修改</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="delete()">删除</button>
+			</div>
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped b-t b-light">
+				<thead>
+					<tr>
+						<th style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+							 </label>
+						</th>
+						<th>机构代码</th>
+						<th>机构名称</th>
+						<th>机构地址</th>
+						<th>联系电话</th>
+						<th>网站地址</th>
+						<th>联系人姓名</th>
+						<th>邮箱</th>
+						<th>邮编</th>
+						<th>机构描述</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x  in organizations">
+						<td style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+							</label>
+						</td>
+						<td>{{ x.code }}</td>
+						<td>{{ x.title }}</td>
+						<td>{{ x.address }}</td>
+						<td>{{ x.phone }}</td>
+						<td>{{ x.website }}</td>
+						<td>{{ x.contacter }}</td>
+						<td>{{ x.email }}</td>
+						<td>{{ x.postcode }}</td>
+						<td>{{ x.description }}</td>
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+			<div class="row">
+				<div class="col-sm-12 text-center">
+					<ul class="pagination pagination-sm m-t-none m-b-none">
+						<li>
+							<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+						</li>
+
+						<li ng-repeat="x  in pages">
+							<a href ng-click="pageClick({{x}})">{{x}}</a>
+						</li>
+
+						<li>
+							<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+						</li>
+						<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+					</ul>
+				</div>
+
+			</div>
+		</footer>
+	</div>
+</div>
+
+<style>
+
+.sysRoles button{
+	height:30px;
+}
+#xlf{
+	width: 50px;
+	height: 30px;
+	filter: alpha(opacity=0);
+	-moz-opacity: 0;
+	-khtml-opacity: 0;
+	opacity: 0;
+	margin-left: -60px;
+	margin-right: 7px;
+	margin-top: -6px;
+	display:inline;
+	cursor:pointer;
+	padding-left: 34px;
+}
+</style>
+
+<script>
+	
+	app.controller('permissionList', ['$scope','$state','$modal', function($scope,$state,$modal) {
+		
+		$scope.pagesize= pageSize;
+		var currentPage=1;
+		
+		
+		//获取机构列表
+		var data = {
+			"keyword":'',
+			"pn":1,
+			"pc":$scope.pagesize,
+		};
+		getList(data);
+		
+		function getList(data){
+			var type="adminOrganizationsList";
+			applicationService(data,type,function(data) {
+				
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var count = thisData.count;
+					$scope.organizations=thisData.data;
+					page($scope, count, currentPage,$scope.pagesize);
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取机构列表失败,原因："+statusText);
+				}
+			},$("body"));
+		}
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var data = {
+				
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+		}
+		
+
+		//搜索事件
+		$scope.searchGo = function() {
+			currentPage=1;
+			
+			var data = {
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+
+		}
+		//添加
+		$scope.add = function() {
+			
+			$state.go("app.organizationFrom",{"id":"","title":"添加机构"});
+		}
+		
+		//修改
+		$scope.update = function(id) {
+			var id = getCheckedOfList();
+			if(id.length !=1) {
+				alert("请选中一条信息");
+				return;
+			}
+			$state.go("app.organizationFrom",{"id":id[0],"title":"修改机构"});
+		}
+		//全选事件
+		$scope.checkboxClick = function() {
+
+			if($scope.checkAll == false) {
+				$(".i-checks input[type='checkbox']:checked").prop("checked", false)
+			} else {
+				$(".i-checks input[type='checkbox']").prop("checked", true)
+			}
+		}
+		
+
+		//删除
+		$scope.delete = function() {
+			deleteHtml($modal,"确定删除信息吗?",deletePermissions);
+			function deletePermissions(){
+				var id = getCheckedOfList();
+				
+				if(id.length < 1) {
+					alertHtml($modal,"请至少选中一条信息删除");
+					return ;
+				}
+				
+				var data = {
+					"id": id,
+				};
+				var type="adminOrganizationsListDelete";
+				consoleLog(data)
+				applicationService(data,type,function(data) {
+					userToken = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							
+							$state.reload('app.organizationList');
+						});
+						
+					} else {
+						alertHtml($modal,"删除失败,原因："+statusText);
+					}
+				},$("body"));
+			}
+		}
+		
+	}]);
+	
+	
+	
+		
+	
+	
+</script>

@@ -1,0 +1,279 @@
+
+	 <style>
+	.navbar-brand .logo{
+		height:auto;
+		max-height:40px;
+		margin-top:5px;
+	 }
+	 
+	 </style> 
+	  
+	  
+	  <!-- navbar header -->
+      <div class="navbar-header {{app.settings.navbarHeaderColor}}">
+
+		<a href="#/" class="navbar-brand text-lt" >
+          <img src="../contents/imgs/newLogo.png" alt="." class="logo">
+        </a>
+
+        <!-- / brand -->
+      </div>
+      <!-- / navbar header -->
+
+      <!-- navbar collapse -->
+      <div class="collapse pos-rlt navbar-collapse box-shadow {{app.settings.navbarHeaderColor}}">
+		<div class="nav navbar-nav hidden-xs">
+          <a href class="no-shadow navbar-btn" style="line-height:50px;cursor:text">
+            <span id="mimatishi" style="color:white"></span>
+          </a>
+		</div>
+
+        <!-- nabar right -->
+        <ul class="nav navbar-nav navbar-right" ng-controller="headerCon" ng-init="openType=false;oldPwdDes=false;newPwdDes=false;pwdDes=fasle;newRePwdDes=false">
+		  
+		 
+		  <li class="dropdown">
+			<a href ng-click="tuichu()"  class="dropdown-toggle clear" >
+              <span id="tuichu" >退出</span>
+            </a>
+          </li>
+          <li class="dropdown">
+            <a href ng-click="open()" class="dropdown-toggle clear">
+              <span class="thumb-sm avatar pull-right m-t-n-sm m-b-n-sm m-l-sm">
+                <img src="../contents/imgs/a0.jpg" alt="...">
+                <i class="on md b-white bottom"></i>
+              </span>
+              <span id="userObj" userID = ""></span></b>
+            </a>
+			 <div id="updatePWD" class="dropdown-menu animated fadeInRight w" style="width: 300px;background: white;color:black;float: left;padding: 0px 0px 10px 0px;border: 1px solid #ccc;">
+				<div class="bg-light" style="line-height:40px;height:40px">修改密码</div>
+				<div style="width:100%;line-height:30px;height:30px;margin-top:10px;float:left;">
+					<label for="password" class="text-right" style="width:80px;">原密码:</label>
+					<input type="password" name="password" id="oldPassword" ng-model="oldPwd" style="width:150px;height:30px;"/>
+				</div>
+				<div ng-show="oldPwdDes" style="width:auto;margin-left:80px;color:red;line-height:30px;height:30px;float:left" id='ymm'>
+					请输入原密码
+				</div>
+				<div style="width:100%;line-height:30px;height:30px;float:left;margin-top:10px;">
+					<label for="password" class="text-right" style="width:80px;">新密码:</label>
+					<input type="password" name="password" id="newpassword" ng-model="newPwd" style="width:150px;height:30px;"/>
+				</div>
+				<div ng-show="newPwdDes" style="width:auto;margin-left:80px;color:red;line-height:30px;height:30px;float:left" id="xmm">
+					请输入新密码
+				</div>
+				<div ng-show="pwdDes" style="width:auto;color:red;line-height:initial;min-height:30px;float:left" id="xmm">
+					长度必须大于5,必须同时含有一个大小写字母和数字
+				</div>
+				
+				<div style="width:100%;line-height:30px;height:30px;float:left;margin-top:10px;">
+					<label for="password" class="text-right" style="width:80px;">重复新密码:</label>
+					<input type="password" name="password" ng-model="newRePwd" id="newrepassword" style="width:150px;height:30px;"/>
+				</div>
+				<div ng-show="newRePwdDes" style="width:auto;color:red;margin-left:80px;line-height:30px;height:30px;float:left" id="xmm">
+					两次密码必须一致
+				</div>
+				<div style="width:100%;line-height:30px;height:30px;float:left;margin-top:10px;" id="xmm">
+					<button type="button" ng-click="updata()" style=" height: 30px;line-height:initial;margin-left: 80px;margin-right: 20px;">提交</button>
+					<button type="button" style=" height: 30px;line-height:initial;" ng-click="open()">取消</button>
+				</div>
+					
+			 </div>
+          </li>
+        </ul>
+        <!-- / navbar right -->
+		<div class="nav navbar-nav navbar-right">
+          <a href class="no-shadow navbar-btn" style="line-height:50px;cursor:text">
+           <span id="today"></span>
+          </a>
+		</div>
+      </div>
+      <!-- / navbar collapse -->
+	 <script>
+
+	
+		
+			var status = $.cookie("status");
+			var statusText = $.cookie("statusText");
+			 
+			$(function(){
+			
+				function p(s) {
+					return s < 10 ? '0' + s: s;
+				}
+
+				var myDate = new Date();
+				//获取当前年
+				var year=myDate.getFullYear();
+				//获取当前月
+				var month=myDate.getMonth()+1;
+				//获取当前日
+				var date=myDate.getDate(); 
+				var h=myDate.getHours();       //获取当前小时数(0-23)
+				var m=myDate.getMinutes();     //获取当前分钟数(0-59)
+				var s=myDate.getSeconds();  
+
+				var now=year+'年'+p(month)+"月"+p(date)+"日";
+				$("#today").html(now);
+				if(status == "10032"){
+					
+					$("#mimatishi").html("密码已经过期，请及时修改密码");
+				}else if(status == "10033"){
+					$("#mimatishi").html("密码过期时间："+statusText);
+					/*statusText =statusText/1000;
+					var data = Math.floor(statusText/(24*60*60));
+					var hour = Math.floor(statusText%(24*60*60)/(60*60));
+					var minute = Math.floor(statusText%(24*60*60)%(60*60)/60);
+					var second = Math.floor(statusText%(24*60*60)%(60*60)%60);
+					$("#mimatishi").html("离密码失效还有："+data+"天"+hour+"时"+minute+"分"+second+"秒");*/
+				}
+			
+			})
+		app.controller('headerCon',['$scope','$state','$modal','$location','$rootScope', function($scope,$state,$modal,$location,$rootScope) {
+			
+			var data = {"token":$.cookie('userToken')};
+			var type="memberToken";
+			var thisUserID={};
+		applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					
+					$("#userObj").html(thisData.account);
+					$("#userObj").attr("userID",thisData.id);
+				} else {
+					console.log("获取当前用户失败,原因："+statusText);
+				}
+			});
+		
+			var data = {
+				"TOKEN": $.cookie('userToken'),
+				"data": [{
+					"group": "webSite",
+					"key": "logoImg"
+				},{
+					"group": "webSite",
+					"key": "webTitle"
+				},{
+					"group": "webSite",
+					"key": "webKey"
+				},{
+					"group": "webSite",
+					"key": "webDepict"
+				}]
+			};
+			var type="memberConfigGet";
+			
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				for(var i = 0; i < thisData.length; i++) {
+					if(thisData[i].key == "logoImg") {
+						$(".logo").attr("src", zeroURL + "api/common/file/image.do?id=" + thisData[i].value + "&size=160_40")
+					}
+					if(thisData[i].key == "webTitle") {
+						$rootScope.appTittle = thisData[i].value;
+						$rootScope.$apply();
+					}
+				}
+			
+			},$('body'))
+		
+		
+		
+		
+			
+			$scope.open = function(){
+				$scope.openType = !$scope.openType;
+				if($scope.openType){
+					$("#updatePWD").css({
+						'display':"block"
+					});
+				}else{
+					$("#updatePWD").css({
+						'display':"none"
+					});
+				}
+				
+			}
+			$scope.updata = function(){
+				$scope.oldPwdDes = false;
+				$scope.newPwdDes = false;
+				$scope.newRePwdDes = false;
+				if($scope.oldPwd==null || $scope.oldPwd==""){
+					$scope.oldPwdDes = true;
+					return false;
+				}
+				
+				if($scope.newPwd==null || $scope.newPwd==""){
+					$scope.oldPwdDes = false;
+					$scope.newPwdDes = true;
+					return false;
+				}
+				var p = /^(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{5,}$/;	
+				if(!p.test($scope.newPwd)) {
+					$scope.newPwdDes = false;
+					$scope.oldPwdDes = false;
+					$scope.pwdDes = true;
+					return false;
+				}
+				if($scope.newPwd != $scope.newRePwd){
+					$scope.newPwdDes = false;
+					$scope.oldPwdDes = false;
+					$scope.pwdDes = false;
+					$scope.newRePwdDes = true;
+					return false;
+				}
+				
+				var uid = $("#userObj").attr("userID")
+				var data={"oldpwd":$scope.oldPwd,"pwd":$scope.newPwd};
+				
+				var type="memberPassword";
+				
+				
+			
+				applicationService(data,type,function(data) {
+					var thisData = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status==1){
+						alertHtml($modal,"密码修改成功",function(){
+							$scope.openType = !$scope.openType;
+							$("#updatePWD").css({
+								'display':"none"
+							});
+						});
+						
+					}else{
+						alertHtml($modal,"密码修改失败，原因："+statusText);
+					}
+				},$('body'))
+				
+				
+				
+			}
+			$scope.tuichu = function(){
+				var data={"TOKEN":$.cookie('userToken'),"userToken":$.cookie('userToken')};
+					var type="memberSignOut";
+					applicationService(data,type,function(data) {
+						userToken = data.data;
+						var status = data.status;
+						var statusText = data.statusText;
+						if(status==1){
+							alertHtml($modal,"退出成功",function(){
+								$.cookie("userToken", "",{ path: '/' });
+								$.cookie("uid", "",{ path: '/' });
+								$.cookie("sid", "",{ path: '/' });
+								$.cookie("loginName", "",{ path: '/' });
+								window.location.href=cliURL+"pages/index.shtml#/memberApp/login";
+							})
+							
+						}else{
+							alertHtml($modal,"退出失败,原因："+statusText);
+						}
+					
+					},$('body'))
+			}
+		
+		}])	
+
+	 </script>

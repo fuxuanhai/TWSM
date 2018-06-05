@@ -1,0 +1,122 @@
+﻿<div id="activityForm" ng-controller="analyseForm">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">案例分析</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row" style="min-height:450px;background:white">
+
+			
+					<h3>正在对“案例标题”案例进行分析</h1>
+					<div id="analyseIng" ng-show="analyseIngDes" ng-click="update1()">分析中...</div>
+					<div ng-show="resultDes" id="analyseResult">
+						<div style="width:100%;min-height:140px;float:left" ng-bind-html="result"></div>
+						<button class="btn btn-sm btn-primary" style="width:80px;margin-left:125px;margin-top:20px;" ng-click="update()">修改</button>
+					</div>
+
+		</div>
+	</div>
+</div>
+<style>
+
+.form-group{
+min-height: 30px;
+}
+h3{
+	width:100%;
+	padding: 0px 20px;
+}
+#analyseIng{
+	width:100%;
+	height:100px;
+	line-height:100px;
+	font-size:20px;
+	padding:20px;
+}
+#analyseResult{
+	width: 100%;
+    min-height: 200px;
+	margin-top:20px;
+	padding:20px;
+}
+
+
+
+
+
+</style>
+<script>
+
+	app.controller('analyseForm', ['$scope', '$compile', '$timeout', '$state','$stateParams','$modal', function($scope, $compile, $timeout, $state,$stateParams,$modal) {
+		$scope.analyseIngDes = true;
+		$scope.resultDes = false;
+		
+		$scope.result="";
+		
+		
+		$scope.id = $stateParams.id;
+		var applyData={
+			"id":$scope.id,
+		}
+		var typeName="adminConAnalyse"
+	
+		applicationService(applyData,typeName,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					
+					
+				
+					$scope.result = data.data.join('&nbsp;&nbsp;&nbsp;');
+					
+					if($scope.result=="" || $scope.result==null){
+						$scope.result="暂无分析结果";
+					}
+					
+					$timeout(function(){
+						$scope.analyseIngDes = false;
+						$scope.resultDes = true;
+						$scope.$apply();
+					},3000)
+					
+				} else {
+					alertHtml($modal,"分析失败;原因:" + statusText);
+				}
+			},$('body'));
+		
+		
+			
+		$scope.update = function(){
+			$state.go("app.contentsFrom",{"id":$scope.id,"cid":$stateParams.cid,"cTitle":"修改案例库"});
+		}
+		
+		$scope.update1 = function(){
+			$scope.analyseIngDes = false;
+			$scope.resultDes = true;
+			$scope.analyseUpdateDes = false;
+		}
+		
+		/*$scope.add = function() {
+			
+			
+			var applyData={
+				id:$scope.id,
+				content:$scope.analyseUpdate,
+				
+			}
+			var typeName = "adminConAnalyseUpdate"
+			
+			applicationService(applyData,typeName,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功!",function(){
+						$state.go('app.contentsList',{"cid":$stateParams.cid});
+					});
+					
+				} else {
+					alertHtml($modal,"操作失败;原因:" + statusText);
+				}
+			},$('body'));	
+		}*/
+	}])
+</script>

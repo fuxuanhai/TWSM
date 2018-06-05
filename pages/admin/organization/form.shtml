@@ -1,0 +1,277 @@
+﻿<div id="activityForm" ng-controller="activityForm" >
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">{{ headerTitle }}</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" thisid="{{id}}" cid="{{cid}}" mid="{{mid}}" class="sysSetForm" name="briefAdd" style="margin:30px auto 30px auto;width:100%;float:left">
+
+						<div class="form-group col-sm-12" style="float:left;min-height:30px;line-height:30px">
+							<label class="col-sm-2 control-label text-right">上级机构</label>
+							
+								<select id="select1" class="form-control" style="width:250px;border-color:#a9a9a9;float:left" ng-model="pid">
+									<option value="0">请选择</option>
+									<!--<option value="1">机构1</option>
+									<option value="2">机构2</option>
+									<option value="3">机构3</option>-->
+									<option value="{{ x.id }}" ng-repeat=" x in organization" obj="{{ x }}">{{ x.title }}</option>
+					
+									
+								</select>
+								<span style="color:red;">{{pidDes}}</span>
+						
+						</div>
+						
+						
+						<div class="form-group col-sm-12">
+							<label>机构代码</label>
+							<input ng-model="code" name="code" style="margin-left: -2px;" />
+							<span style="color:red;">{{codeDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>机构名称</label>
+							<input ng-model="title" name="title" style="margin-left: -2px;" />
+							<span style="color:red;">{{nameDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>机构地址</label>
+							<input ng-model="address" name="address" style="margin-left: -2px;" />
+							<span style="color:red;">{{addressDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>机构电话</label>
+							<input ng-model="phone" name="phone" style="margin-left: -2px;" />
+							<span style="color:red;">{{phoneDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>机构网址</label>
+							<input ng-model="website" name="website" style="margin-left: -2px;" />
+							<span style="color:red;">{{websiteDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>联系人姓名</label>
+							<input ng-model="contacter" name="contacter" style="margin-left: -2px;" />
+							<span style="color:red;">{{contacterDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>邮箱</label>
+							<input ng-model="email" name="email" style="margin-left: -2px;" />
+							<span style="color:red;">{{emailDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label>邮编</label>
+							<input ng-model="postcode" name="postcode" style="margin-left: -2px;" />
+							<span style="color:red;">{{postcodeDes}}</span>
+						</div>
+						<div class="form-group col-sm-12">
+							<label style='float:left'>机构描述</label>
+							<textarea ng-model="description" name="description" style='margin-left: -2px;width:350px;height:150px'  > </textarea>
+							<span style="color:red;">{{descriptionDes}}</span>
+						</div>
+						
+						<div class="row" style="width:100%;float:left;margin-top:20px">
+							<button id="tijiaoUser" class="btn btn-sm btn-primary" style="margin-left:145px" ng-click="add()">提交</button>
+							<button class="btn btn-sm btn-primary" style="margin-left:25px" ng-click="back()">返回</button>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+.sysSetForm input{
+	height: 34px;
+}
+
+</style>
+<script>
+	
+	app.controller('activityForm', ['$scope', '$state','$stateParams','$modal', function($scope,  $state,$stateParams,$modal) {
+		$scope.pid=0;
+		
+		$scope.id = $stateParams.id;
+		$scope.headerTitle=$stateParams.title;
+		
+		
+		//获取机构列表
+		var data={}
+		var type="adminOrganizationFormList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.organization = thisData.data ;
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取机构列表失败,原因："+statusText);
+			}
+		},$("body"));
+		
+		
+		if($scope.id!="" && $scope.id!=null){
+				//获取机构详情
+			var data = {id:$scope.id};
+			var type="adminOrganizationFormGet";
+			
+			applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$scope.pid = thisData.pid;
+					$scope.code = thisData.code,
+					$scope.title = thisData.title,
+					$scope.address = thisData.address,
+					$scope.phone = thisData.phone,
+					$scope.website = thisData.website,
+					$scope.contacter = thisData.contacter,
+					$scope.email = thisData.email,
+					$scope.postcode = thisData.postcode,
+					$scope.description = thisData.description,
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取校历详情失败,原因："+statusText);
+				}
+			},$('body'))
+		}
+		
+		$scope.back = function(){
+			$state.go('app.organizationList');
+		}
+		
+		
+		$scope.add = function() {
+			
+			
+			var id = $stateParams.id;
+			var typeName = "adminOrganizationFormAdd";
+			$scope.pidDes="";
+			$scope.codeDes = "";
+			$scope.nameDes = "";
+			$scope.addressDes = "";
+			$scope.phoneDes = "";
+			$scope.websiteDes = "";
+			$scope.contacterDes = "";
+			$scope.emailDes = "";
+			$scope.postcodeDes = "";
+			$scope.descriptionDes = "";
+			
+			
+			
+			if(!captchaLibrary.isNull($scope.pid) && $scope.pid!=0){
+				$scope.pidDes = "请选择上级机构";
+				return;
+			}
+			if(!captchaLibrary.length(($scope.pid+""),0,32)){
+				$scope.pidDes = "上级机构长度不能超过32";
+				return;
+			}
+			if(!captchaLibrary.isNull($scope.code)){
+				$scope.codeDes = "机构代码不能为空";
+				return;
+			}
+		
+			
+			if(!captchaLibrary.length($scope.code,0,128)){
+				$scope.codeDes = "机构代码长度不能超过128";
+				return;
+			}
+			
+			if(!captchaLibrary.isNull($scope.title)){
+				$scope.nameDes = "机构名称不能为空";
+				return;
+			}
+			if(!captchaLibrary.length($scope.title,0,10)){
+				$scope.nameDes = "机构名称长度不能超过10";
+				return;
+			}
+			
+			if(captchaLibrary.isNull($scope.address) && !captchaLibrary.length($scope.address,0,128) ){
+				$scope.addressDes = "机构地址长度不能超过128";
+				return;
+			}
+			
+			if(captchaLibrary.isNull($scope.phone) && !captchaLibrary.length($scope.phone,0,20) ){
+				$scope.phoneDes = "联系电话长度不能超过20";
+				return;
+			}
+			
+			if(captchaLibrary.isNull($scope.phone) && !captchaLibrary.phone($scope.phone) ){
+				$scope.phoneDes = "请输入正确的电话号码";
+				return;
+			}
+			
+			
+			if( captchaLibrary.isNull($scope.website) && !captchaLibrary.length($scope.website,0,128)){
+				$scope.websiteDes = "网站地址长度不能超过128";
+				return;
+			}
+			if(captchaLibrary.isNull($scope.contacter) &&!captchaLibrary.length($scope.contacter,0,128)){
+				$scope.contacterDes = "联系人姓名长度不能超过128";
+				return;
+			}
+			
+			if(captchaLibrary.isNull($scope.email) && !captchaLibrary.length($scope.email,0,32)){
+				$scope.emailDes = "邮箱长度不能超过32";
+				return;
+			}
+			if(captchaLibrary.isNull($scope.email) && !captchaLibrary.email($scope.email)){
+				$scope.emailDes = "邮箱格式错误";
+				return;
+			}
+			if(captchaLibrary.isNull($scope.postcode && !captchaLibrary.length($scope.postcode,0,6))){
+				$scope.postcodeDes = "邮编长度不能超过6";
+				return;
+			}
+			if(captchaLibrary.isNull($scope.description) && !captchaLibrary.length($scope.description,0,512)){
+				$scope.descriptionDes = "机构描述长度不能超过512";
+				return;
+			}
+			
+			
+		
+			var applyData={
+				pid:$scope.pid,
+				code:$scope.code,
+				title:$scope.title,
+				address:$scope.address,
+				phone:$scope.phone,
+				website:$scope.website,
+				contacter:$scope.contacter,
+				email:$scope.email,
+				postcode:$scope.postcode,
+				description:$scope.description,
+			};
+			
+			if(id!="" && id!=null){
+				typeName = "adminOrganizationFormUpdate";
+				applyData.id = parseInt(id);
+			}
+			
+			
+		
+			consoleLog(typeName)
+			consoleLog(applyData)
+			
+			applicationService(applyData,typeName,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功!",function(){
+						$state.go('app.organizationList');
+					});
+					
+				} else {
+					alertHtml($modal,"操作失败;原因:" + statusText);
+				}
+			},$('body'));	
+		}
+	}])
+</script>

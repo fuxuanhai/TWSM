@@ -1,0 +1,409 @@
+﻿<div id="contentList" ng-controller="contentList">
+	<div class="bg-light lter b-b wrapper-md" style="height:65px">
+		<h1 class="m-n font-thin h3 col-sm-3">{{catagoriesName}}</h1>
+		
+	</div>
+	<div class="wrapper-md">
+
+		<div class="panel panel-default">
+		<div class="row wrapper">
+			<div class="col-sm-3">
+				<div class="input-group" style="z-index:900">
+					<span class="input-group-btn">  
+						<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">{{catagoriesText}}编号</div>
+					 </span> 
+					<input type="text" ng-model="number" class="input-sm form-control">
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="input-group" style="z-index:900">
+					<span class="input-group-btn">
+						<div class="btn btn-sm btn-default" style="border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">{{catagoriesText}}题目</div>
+					 </span>
+					<input type="text" ng-model="title" class="input-sm form-control">
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="input-group" style="z-index:900">
+					<span class="input-group-btn">
+						<div class="btn btn-sm btn-default" style="padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">{{catagoriesText}}语种</div>
+					 </span>
+					<div style="display:inline-block;padding-left:0px;width:100%;" class="selectMune">
+						<ui-select ng-model="language.selected" theme="bootstrap" >
+							<ui-select-match >{{$select.selected.name}}</ui-select-match>
+							<ui-select-choices repeat="item in language | filter: $select.search">
+								<div ng-bind-html="item.name | highlight: $select.search"></div>
+							</ui-select-choices>
+						</ui-select>
+					</div>
+				</div>
+			</div>
+			
+			<div class="col-sm-3">
+				<div class="input-group" style="z-index:900">
+					<span class="input-group-btn">
+						<div class="btn btn-sm btn-default" style="padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">{{catagoriesText}}分类</div>
+					 </span>
+					<div style="display:inline-block;padding-left:0px;width:100%;" class="selectMune">
+						<ui-select ng-model="types.selected" theme="bootstrap" >
+							<ui-select-match >{{$select.selected.title}}</ui-select-match>
+							<ui-select-choices repeat="item in types | filter: $select.search">
+								<div ng-bind-html="item.title | highlight: $select.search"></div>
+							</ui-select-choices>
+						</ui-select>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<div class="row wrapper" style="padding-top:0px">
+				<div class="col-sm-6">
+					<div class="input-group" style="z-index:900">
+						
+						 <span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">关键词</div>
+						 </span>
+						<input type="text" ng-model="key" class="input-sm form-control">
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default" style="height:30px;margin-left:20px;" ng-click="searchGo()" type="button">查询</button>
+						 </span>
+					</div>
+				</div>
+			
+			<div class="col-sm-6 text-right">
+				<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="add()">添加</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="update()">修改</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:20px" ng-click="delete()">删除</button>
+			</div>
+					
+			</div>
+			<div class="table-responsive">
+				<table class="table table-striped b-t b-light">
+					<thead>
+						<tr>
+							<th width="5%">
+								<label class="i-checks m-b-none">
+									<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+								 </label>
+							</th>
+							<th width="10%">{{catagoriesText}}编号</th>
+							<th width="10%">{{catagoriesText}}题目</th>
+							<th width="10%">{{catagoriesText}}作者</th>
+							<th width="10%">{{catagoriesText}}分类</th>
+							<th width="10%">关键词</th>
+							<th width="10%">{{catagoriesText}}语种</th>
+							<th width="10%">入库时间</th>
+							<th width="10%">所属行业</th>
+							<th width="15%">操作</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-repeat="x  in contents"  thisId="{{x.id}}" id="listId{{x.id}}">
+							<td style="width:20px;">
+								<label class="i-checks m-b-none">
+									<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+								 </label>
+							<td>{{ x.number }}</td>
+							<td>{{ x.title }}</td>
+							<td>{{ x.author }}</td>
+							<td>{{ x.type }}</td>
+							<td>{{ x.key }}</td>
+							<td>{{ x.language }}</td>
+							<td>{{ x.addtime }}</td>
+							<td>{{ x.industry }}</td>
+							<th>
+								<button class="btn btn-sm btn-primary" ng-click="yulang({{x.id}})">预览</button>
+								<button class="btn btn-sm btn-primary" ng-show="shipingShow" ng-click="fenxu({{x.id}})">视频分析</button>
+							</td>
+							
+							
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+				<div class="row">
+					<div class="col-sm-12 text-center">
+						<ul class="pagination pagination-sm m-t-none m-b-none">
+							<li>
+								<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+							</li>
+							<li ng-repeat="x  in pages">
+								<a href ng-click="pageClick({{x}})">{{x}}</a>
+							</li>
+
+							<li>
+								<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+							</li>
+							<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+						</ul>
+					</div>
+
+				</div>
+			</footer>
+		</div>
+	</div>
+</div>
+<style>
+.selectMune ul{
+	margin-top:30px;
+}
+.selectMune button{
+	height:30px;
+}
+
+.input-group-btn .btn-default:hover{
+background:white;
+}
+
+</style>
+<script>
+app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('contentList', ['$scope','$state', '$modal','$stateParams',function($scope,$state,$modal,$stateParams) {
+		
+		$scope.language=[{"name":'中文',"id":0},{"name":'英文',"id":1}];
+		if($stateParams.cid==1){
+			$scope.catagoriesName="资讯列表";
+			$scope.catagoriesText="资讯";
+			$scope.shipingShow = false;
+		}else{
+			$scope.catagoriesName="案例库列表";
+			$scope.catagoriesText="案例";
+			$scope.shipingShow = true;
+		}
+		$scope.cid = $stateParams.cid;
+		
+		$scope.listType="admincontentListAll";
+		
+		
+		$scope.pageSize = pageSize;
+		var currentPage =1;
+		
+		
+		
+		
+		//获取类别的列表
+		var data = {"id":parseInt($stateParams.cid)};
+		var type="adminContentListCatList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.types = changeList(thisData, 0);
+				//获取内容列表
+				var applyData={"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+				var type= $scope.listType;
+				applicationService(applyData,type,function(data){
+					getList(data);	
+				},$('body'));
+				
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+	
+		function getList(data) {
+		
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				var contentData = thisData.list;
+				
+				var total = thisData.total;
+				
+				if(total=="" || total==null){
+					$scope.pageShow=false;
+					$scope.$digest();
+				}
+			
+				var newCon = [];
+				if(contentData=="" || contentData==null){
+					$scope.contents =[];
+					$scope.$digest();
+					return;
+				}
+				
+				for(var i = 0; i < contentData.length; i++) {
+					newCon.push(changeData(contentData[i],$scope.types))
+				}
+			
+				$scope.contents = newCon;
+				page($scope, total, currentPage,$scope.pageSize);
+				$scope.$digest();
+			} else {
+				alertHtml($modal,"获取内容列表失败,原因："+statusText);
+			}
+		}
+
+		
+		
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var applyData={"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+			if(captchaLibrary.isNull($scope.number)){
+				applyData.condition.push({'title':'案例编号',value:$scope.number})
+			}
+			if(captchaLibrary.isNull($scope.title)){
+				applyData.condition.push({'title':'案例题目',value:$scope.title})
+			}
+			if(captchaLibrary.isNull($scope.key)){
+				applyData.condition.push({'title':'关键词',value:$scope.key})
+			}
+			
+			if(captchaLibrary.isNull($scope.types.selected)){
+				applyData.condition.push({'title':'案例分类',value:$scope.types.selected.id})
+				cid = $scope.types.selected.id;
+				applyData.cid = cid;
+			}
+			
+			if(captchaLibrary.isNull($scope.language.selected)){
+				applyData.condition.push({'title':'案例语种',value:""+$scope.language.selected.id})
+			}
+			var type= $scope.listType;
+			applicationService(applyData,type,function(data){
+				getList(data);	
+			},$('body'));
+
+		}
+		
+		//添加
+		$scope.add = function() {
+			
+			if($stateParams.cid==1){
+				$state.go("app.contentsFrom",{"id":"","cid":$stateParams.cid,"cTitle":"添加资讯"});
+			}else{
+				$state.go("app.contentsFrom",{"id":"","cid":$stateParams.cid,"cTitle":"添加案例库"});
+			}
+			
+			
+		}
+		
+			//全选事件
+		$scope.checkboxClick = function() {
+
+			if($scope.checkAll == false) {
+				$(".i-checks input[type='checkbox']:checked").prop("checked", false)
+			} else {
+				$(".i-checks input[type='checkbox']").prop("checked", true)
+			}
+		}
+		
+		//修改
+		$scope.update = function(id) {
+			var id = getCheckedOfList();
+			if(id.length !=1) {
+				alert("请选中一条信息");
+				return;
+			}
+			$state.go("app.contentsFrom",{"id":id[0],"cid":$stateParams.cid,"cTitle":"修改案例库"});
+		}
+		
+		$scope.yulang = function(id) {
+			$state.go("app.contentsDetail",{"id":id,"cid":$stateParams.cid});
+		}
+		
+		$scope.fenxu = function(id){
+			$state.go("app.contentsAnalyseVideo",{"id":id});
+		}
+		
+		
+		//删除
+		$scope.delete = function() {
+			var idArray = getCheckedOfList();
+			if(idArray.length < 1) {
+				alert("请至少选中一条信息");
+				return;
+			}
+			deleteHtml($modal,"确定删除该信息吗?",deleteContent,idArray);
+			function deleteContent(id){
+				//删除内容
+				var applyData={"id":idArray};
+				var type= "adminContentDelete";
+				applicationService(applyData,type,function(data){
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功!",function(){
+							$state.reload('app.contentsList');
+						});
+					} else {
+						alertHtml($modal,"删除失败;原因:" + statusText);
+					}
+				},$('body'));
+			}
+			
+			
+		}
+		
+		//搜索
+		$scope.searchGo = function(){
+			$scope.listType = "admincontentListAll"
+			var currentPage =1;
+			var applyData={"cid":$scope.cid,"pn":currentPage,"pc":$scope.pageSize,condition:[]};
+			if(captchaLibrary.isNull($scope.number)){
+				applyData.condition.push({'title':'案例编号',value:$scope.number})
+			}
+			if(captchaLibrary.isNull($scope.title)){
+				applyData.condition.push({'title':'案例题目',value:$scope.title})
+			}
+			if(captchaLibrary.isNull($scope.key)){
+				applyData.condition.push({'title':'关键词',value:$scope.key})
+			}
+			
+			if(captchaLibrary.isNull($scope.types.selected)){
+				
+				cid = $scope.types.selected.id;
+				applyData.cid = cid;
+				$scope.listType = "admincontentList"
+			}
+			
+			if(captchaLibrary.isNull($scope.language.selected)){
+				applyData.condition.push({'title':'案例语种',value:""+$scope.language.selected.id})
+			}
+		
+			var type= $scope.listType;
+			applicationService(applyData,type,function(data){
+				getList(data);	
+			},$('body'));
+		}
+		
+	
+		
+		
+	}])
+</script>

@@ -1,0 +1,243 @@
+﻿<div class="bg-light lter b-b wrapper-md">
+	<h1 class="m-n font-thin h3">班级列表</h1>
+</div>
+<div class="wrapper-md" id="permissionList" ng-controller="permissionList">
+
+	<div class="panel panel-default">
+		<div class="row wrapper">
+			<div class="col-sm-6 col-xs-12">
+				<div class="input-group text-left" style="z-index:900">
+						 <span class="input-group-btn">
+							<div class="btn btn-sm btn-default" style="padding-top:0px;padding-bottom:0px;border: 0px;box-shadow: 0px 0px 0px;font-size: 14px;">班级名称</div>
+						 </span>
+						<input type="text" ng-model="searchTest" class="input-sm form-control">
+						<span class="input-group-btn">
+							<button class="btn btn-sm btn-default" style="height:30px;margin-left:20px;" ng-click="searchGo()" type="button">查询</button>
+						 </span>
+						
+				</div>
+					
+			</div>
+			<div class="col-sm-6 m-b-xs text-right">
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="add()">添加</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="update()">修改</button>
+				<button class="btn btn-sm btn-primary" style="margin-right:10px;margin-bottom:5px" ng-click="delete()">删除</button>
+			</div>
+		</div>
+		<div class="table-responsive">
+			<table class="table table-striped b-t b-light">
+				<thead>
+					<tr>
+						<th style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" ng-model="checkAll" ng-click="checkboxClick()"><i></i>
+							 </label>
+						</th>
+						<th>所属机构</th>
+						<th>开班日期</th>
+						<th>班级名称</th>
+						
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="x  in calenders">
+						<td style="width:20px;">
+							<label class="i-checks m-b-none">
+								<input type="checkbox" vid="{{ x.id }}" ng-model="checkAll"><i></i>
+							</label>
+						</td>
+						<td>{{ x.title }}</td>
+						<td>{{ x.addtime }}</td>
+						<td>{{ x.text }}</td>
+						
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<footer class="panel-footer" ng-show="pageShow"  ng-init="pageShow=true">
+			<div class="row">
+				<div class="col-sm-12 text-center">
+					<ul class="pagination pagination-sm m-t-none m-b-none">
+						<li>
+							<a href ng-click="pageClick(prevPage)"><i class="fa fa-chevron-left"></i></a>
+						</li>
+
+						<li ng-repeat="x  in pages">
+							<a href ng-click="pageClick({{x}})">{{x}}</a>
+						</li>
+
+						<li>
+							<a href ng-click="pageClick(nextPage)"><i class="fa fa-chevron-right"></i></a>
+						</li>
+						<div style="height:30px;display:inline-block;line-height:30px;margin-left:20px">共{{pageCount}}页</div>
+					</ul>
+				</div>
+
+			</div>
+		</footer>
+	</div>
+</div>
+
+<style>
+
+.sysRoles button{
+	height:30px;
+}
+.sysRoles ul{
+	margin-top:30px;
+}
+</style>
+
+<script>
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('permissionList', ['$scope','$state','$modal', function($scope,$state,$modal) {
+		
+		$scope.pagesize= pageSize;
+		var currentPage=1;
+		
+		//获取班级列表
+		var data = {
+			"keyword":'',
+			"pn":1,
+			"pc":$scope.pagesize,
+		};
+		getList(data);
+		
+		function getList(data){
+			var type="adminGroupList";
+			applicationService(data,type,function(data) {
+				
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					var count = thisData.count;
+					$scope.calenders=thisData.data;
+					page($scope, count, currentPage,$scope.pagesize);
+					$scope.$apply();
+				} else {
+					alertHtml($modal,"获取班级列表失败,原因："+statusText);
+				}
+			},$("body"));
+		}
+		
+		//页码点击事件
+		$scope.pageClick = function(num) {
+			currentPage = num;
+			var data = {
+				
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+		}
+		
+
+		//搜索事件
+		$scope.searchGo = function() {
+			currentPage=1;
+			
+			var data = {
+				"keyword":$scope.searchTest,
+				"pn":currentPage,
+				"pc":$scope.pagesize,
+			};
+			getList(data);
+
+		}
+		//添加
+		$scope.add = function() {
+			
+			$state.go("app.groupFrom",{"id":"","title":"添加班级"});
+		}
+		
+		//修改
+		$scope.update = function(id) {
+			var id = getCheckedOfList();
+			if(id.length !=1) {
+				alert("请选中一条信息");
+				return;
+			}
+			$state.go("app.groupFrom",{"id":id[0],"title":"修改班级"});
+		}
+		//全选事件
+		$scope.checkboxClick = function() {
+
+			if($scope.checkAll == false) {
+				$(".i-checks input[type='checkbox']:checked").prop("checked", false)
+			} else {
+				$(".i-checks input[type='checkbox']").prop("checked", true)
+			}
+		}
+
+		//删除
+		$scope.delete = function() {
+			deleteHtml($modal,"确定删除信息吗?",deletePermissions);
+			function deletePermissions(){
+				var id = getCheckedOfList();
+				
+				if(id.length < 1) {
+					alertHtml($modal,"请至少选中一条信息删除");
+					return ;
+				}
+				
+				var data = {
+					"id": id,
+				};
+				var type="adminGroupListDelete";
+				consoleLog(data)
+				applicationService(data,type,function(data) {
+					userToken = data.data;
+					var status = data.status;
+					var statusText = data.statusText;
+					if(status == 1) {
+						alertHtml($modal,"删除成功",function(){
+							
+							$state.reload('app.adminGroupList');
+						});
+						
+					} else {
+						alertHtml($modal,"删除失败,原因："+statusText);
+					}
+				},$("body"));
+			}
+		}
+		
+	}]);
+	
+	
+	
+		
+	
+	
+</script>

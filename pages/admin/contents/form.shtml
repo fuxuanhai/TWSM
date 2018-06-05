@@ -1,0 +1,613 @@
+﻿<div id="activityForm" ng-controller="activityForm">
+	<div class="bg-light lter b-b wrapper-md">
+		<h1 class="m-n font-thin h3">{{ addTitle }}</h1>
+	</div>
+	<div class="wrapper-md">
+		<div class="row">
+
+			<div class="panel panel-default">
+				<div class="panel-body">
+					<form role="form" thisid="{{id}}" cid="{{cid}}" mid="{{mid}}" class="sysSetForm" name="briefAdd" style="margin:30px auto 30px auto;width:100%;float:left">
+
+						<div class="form-group col-sm-6" typeNum="1">
+							<label>{{catagoriesText}}编号</label>
+							
+							<input ng-model="number" name="number" style="margin-left: -2px;" />
+							<span style="color:red;margin-left:5px;">*</span>
+							<span ng-show="numberDes" style="color:red;margin-left:5px;">{{catagoriesText}}编号不能为空</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="1">
+							<label>{{catagoriesText}}题目</label>
+							<input ng-model="title" name="title" style="margin-left: -2px;" />
+							<span style="color:red;margin-left:5px;">*</span>
+							<span ng-show="titleDes" style="color:red;margin-left:5px;">{{catagoriesText}}题目不能为空</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="1" style="height:30px">
+							<label>{{catagoriesText}}作者</label>
+							<input ng-model="author" name="author" style="margin-left: -2px;" />
+							<span style="color:red;margin-left:5px;">*</span>
+							<span ng-show="authorDes" style="color:red;margin-left:5px;">作者不能为空</span>
+						</div>
+						<div class="form-group col-sm-6" typeNum="7">
+							<label>{{catagoriesText}}分类</label>
+						<!--	<input ng-model="type" name="type" style="margin-left: -2px;" />-->
+							<div style="display:inline-block;margin-left: -2px;padding-left:0px;width:250px;" class="selectMune">
+								<ui-select ng-model="types.selected" theme="bootstrap" >
+									<ui-select-match >{{$select.selected.title}}</ui-select-match>
+									<ui-select-choices repeat="item in types | filter: $select.search">
+										<div ng-bind-html="item.title | highlight: $select.search"></div>
+									</ui-select-choices>
+								</ui-select>
+							</div>
+						</div>
+						<div class="form-group col-sm-6" typeNum="7">
+							<label style="float:left;margin-top:2px;">{{catagoriesText}}语种</label>
+							<select id="language" style="width:250px;height:30px;border-color:#a9a9a9;float:left" ng-model="language">
+									<option value="0">中文</option>
+									<option value="1">英文</option>
+								</select>
+							
+						</div>
+						<div class="form-group col-sm-6" typeNum="1" style="height:30px">
+							<label >所属行业</label>
+							<input  ng-model="industry" name="industry" style="margin-left: -2px;" />
+						</div>
+						
+						<div class="form-group col-sm-12"  typeNum="1">
+							<label >关键词</label>
+							<input  ng-model="key" name="key" style="margin-left: -2px;" />
+							<span style="color:red">关键词以英文逗号隔开</span>
+						</div>
+						<div class="form-group col-sm-6"  typeNum="1" style="display:none">
+							<label >浏览量</label>
+							<input  ng-model="liulanliang" name="liulanliang" style="margin-left: -2px;" />
+							<span ng-show="liulanliangDes" style="color:red">请输入数字</span>
+							
+						</div>
+						<!--<div class="form-group col-sm-6"  typeNum="1">
+							<label >状态</label>
+							<input  ng-model="statue" name="statue" style="margin-left: -2px;" />
+						</div>-->
+						<div class="form-group col-sm-8"  typeNum="9">
+							<label >{{catagoriesText}}类型</label>
+							<label class="i-checks m-b-none" style="width:100px">
+								<input vid="1" id="anlileixing1" type="checkbox" /><i></i>热门
+							</label>
+							<label class="i-checks m-b-none" style="width:100px">>
+								<input vid="2" id="anlileixing2" type="checkbox" /><i></i>精品
+							</label>
+							<label class="i-checks m-b-none" style="width:100px">>
+								<input vid="3" id="anlileixing3" type="checkbox" /><i></i>视频
+							</label>
+							<label class="i-checks m-b-none" style="width:100px">>
+								<input vid="4" id="anlileixing4" type="checkbox" /><i></i>音频
+							</label>
+							<label class="i-checks m-b-none" style="width:100px">>
+								<input vid="5" id="anlileixing5" type="checkbox" /><i></i>文本
+							</label>
+						</div>
+						
+						
+						<div class="form-group col-sm-12" typeNum="5">
+							<label style='float:left'>{{catagoriesText}}摘要</label>
+							<textarea  ng-model="abstract" name="abstract" style='float:left;width:350px;height:150px'  > </textarea>
+							<span style="color:red;margin-left:5px;float:left">*</span>
+							<span ng-show="abstractDes" style="color:red;float:left;margin-left:5px;">摘要不能为空</span>
+						</div>
+						<div class='form-group col-sm-12' style='min-height:350px;height: auto;' typeNum="6">
+							<label style='float:left'>内容</label>
+							<div id='editor' type='text/plain' style='padding-left:0px;line-height:25px;float:left;'></div>
+							<span style="color:red;margin-left:5px;">*</span>
+							<span ng-show="htmlVariableDes" style="color:red;margin-left:5px;">内容不能为空</span>
+						</div>
+						<div class="form-group col-sm-12" typeNum="4">
+							<label style="float:left;line-height:40px">标题图片</label>
+							<div id="uploader-demo" style="float:left">
+								<div id="filePicker1">上传图片</div>
+							</div>
+						</div>
+						<div class="form-group col-sm-12">
+							<label ng-hide="true">MD5</label>
+							<input id="titleImgId" ng-model="titleImgId" ng-hide="true" />
+							<div id="fileList1" class="uploader-list" style="margin-left:130px;margin-bottom:10px">
+
+							</div>
+						</div>
+						
+						
+						<div class="form-group col-sm-12" typeNum="4">
+							<label style="float:left;line-height:40px">{{catagoriesText}}附件</label>
+							<div id="uploader-demo" style="float:left">
+								<div id="filePicker">上传附件</div>
+							</div>
+						</div>
+						<div class="form-group col-sm-12">
+							<label ng-hide="true">MD5</label>
+							<input id="bannerId" ng-model="logoImg" ng-hide="true" />
+							<div id="fileList" class="uploader-list" style="margin-left:130px;margin-bottom:10px">
+
+							</div>
+						</div>
+						<div class="row" style="width:100%;float:left;margin-top:20px">
+							<button id="tijiaoUser" class="btn btn-sm btn-primary" style="margin-left:145px" ng-click="add()">提交</button>
+							<button class="btn btn-sm btn-primary" style="margin-left:25px" ng-click="back()">返回</button>
+						</div>
+					</form>
+					
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+<style>
+
+.form-group{
+min-height: 30px;
+}
+.sysSetForm input{
+	height: 30px;
+}
+.selectMune button{
+	height:30px;
+}
+.selectMune .btn{
+padding-top:4px
+}
+
+</style>
+<script>
+	app.filter('ntobr', function(){
+		var filter = function(input){
+			return input.replace(/\n/g,"<\/br>").replace(/ /g,"&nbsp;");
+		};
+		return filter;
+	});
+	app.filter('propsFilter', function() {
+		return function(items, props) {
+			var out = [];
+
+			if (angular.isArray(items)) {
+			  items.forEach(function(item) {
+				var itemMatches = false;
+
+				var keys = Object.keys(props);
+				for (var i = 0; i < keys.length; i++) {
+				  var prop = keys[i];
+				  var text = props[prop].toLowerCase();
+				  if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+					itemMatches = true;
+					break;
+				  }
+				}
+
+				if (itemMatches) {
+				  out.push(item);
+				}
+			  });
+			} else {
+			  // Let the output be the input untouched
+			  out = items;
+			}
+			return out;
+		};
+	})
+	app.controller('activityForm', ['$scope', '$compile', '$timeout', '$state','$stateParams','$modal', function($scope, $compile, $timeout, $state,$stateParams,$modal) {
+		
+		
+		
+		
+		
+		
+		//百度编辑器
+		UE.delEditor('editor');
+		var editor = UE.getEditor('editor', {
+			//这里可以选择自己需要的工具按钮名称,此处仅选择如下五个
+			toolbars: [
+				['FullScreen', 'Source', 'Undo', 'Redo', 'Bold', 'italic', 'underline', 'justifyleft', 'justifycenter', 'justifyright', 'justifyjustify', 'fontfamily', 'fontsize', 'test', 'insertimage','preview']
+			],
+			//focus时自动清空初始化时的内容
+			autoClearinitialContent: false,
+			//关闭字数统计
+			wordCount: false,
+			//关闭elementPath
+			elementPathEnabled: false,
+			// 服务器统一请求接口路径
+			serverUrl: Acp.uploader.getUploadApi("adminContentsFrom.upload",true),
+			//默认的编辑区域高度
+			initialFrameWidth:500,
+			initialFrameHeight: 300,
+			//	initialContent:$scope.htmlVariable
+			//更多其他参数，请参考ueditor.config.js中的配置项
+		});
+		
+		//setTimeout(function(){
+			//$("#filePicker input").removeAttr("multiple");
+		//},1000)
+		
+		// 初始化Web Uploader
+		var BASE_URL = '../contents/ueditor/third-party/webuploader';
+		var uploader = WebUploader.create({
+
+			// 选完文件后，是否自动上传。
+			auto: true,
+			// swf文件路径
+			swf: BASE_URL + '/Uploader.swf',
+
+			// 文件接收服务端。
+			server:Acp.uploader.getUploadApi("adminContentsFrom.upload"),
+
+			// 选择文件的按钮。可选。
+			// 内部根据当前运行是创建，可能是input元素，也可能是flash.
+			pick: '#filePicker',
+			
+			// 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+			resize: false
+		});  
+		
+		setTimeout(function(){
+			$(".edui-editor").css("z-index",'990');
+		},1000)
+		
+
+		//当文件上传成功时触发。
+		uploader.on('uploadSuccess', function(file, response) {
+			var md5 = JSON.stringify(jQuery.parseJSON(response._raw).data);
+			
+			if($("#bannerId").val()=="" || $("#bannerId").val()==null){
+				$scope.logoImg = md5;
+			}else{
+				$scope.logoImg = $("#bannerId").val() + "##&&"+md5;
+			}
+			$("#bannerId").val($scope.logoImg);
+			
+			
+		});
+		
+
+		// 当有文件添加进来的时候
+		uploader.on("fileQueued", function(file) {
+			$("#fileList a").remove();
+			var $li = $(
+					"<div id='" + file.id + "' class='file-item thumbnail' style='float:left;margin-right:10px'>" +
+					//"<img>"
+					   "<div class='info'>"+file.name+"</div>"  
+					+
+					"</div>"
+				),
+				$img = $li.find("img");
+			//$("#fileList").empty();
+			// $list为容器jQuery实例
+			$("#fileList").append($li);
+
+			// 创建缩略图
+			// 如果为非图片文件，可以不用调用此方法。
+			// thumbnailWidth x thumbnailHeight 为 100 x 100
+			var thumbnailWidth = 100;
+			var thumbnailHeight = 100;
+			uploader.makeThumb(file, function(error, src) {
+				if(error) {
+					$img.replaceWith("<span>不能预览</span>");
+					return;
+				}
+
+				$img.attr("src", src);
+			}, thumbnailWidth, thumbnailHeight);
+
+		});
+		
+		
+		var uploader1 = WebUploader.create({
+
+			// 选完文件后，是否自动上传。
+			auto: true,
+			// swf文件路径
+			swf: BASE_URL + '/Uploader.swf',
+
+			// 文件接收服务端。
+			server:Acp.uploader.getUploadApi("adminContentsFrom.upload"),
+
+			// 选择文件的按钮。可选。
+			// 内部根据当前运行是创建，可能是input元素，也可能是flash.
+			pick: '#filePicker1',
+			
+			// 不压缩image, 默认如果是jpeg，文件上传前会压缩一把再上传！
+			resize: false
+		});  
+		
+		
+		setTimeout(function(){
+			$("#filePicker1 input").removeAttr("multiple");
+		},1000)
+		
+		
+
+		//当文件上传成功时触发。
+		uploader1.on('uploadSuccess', function(file, response) {
+			
+				var md5 = jQuery.parseJSON(response._raw).data.md5;
+				$("#titleImgId").val(md5);
+				
+			
+		});
+
+		// 当有文件添加进来的时候
+		uploader1.on("fileQueued", function(file) {
+			var $li = $(
+					"<div id='" + file.id + "' class='file-item thumbnail' style='float:left;margin-right:10px'>" +
+					"<img>"
+					//   +"<div class='info'>"+file.name+"</div>"  
+					+
+					"</div>"
+				),
+				$img = $li.find("img");
+			$("#fileList1").empty();
+			// $list为容器jQuery实例
+			$("#fileList1").append($li);
+
+			// 创建缩略图
+			// 如果为非图片文件，可以不用调用此方法。
+			// thumbnailWidth x thumbnailHeight 为 100 x 100
+			var thumbnailWidth = 100;
+			var thumbnailHeight = 100;
+			uploader1.makeThumb(file, function(error, src) {
+				if(error) {
+					$img.replaceWith("<span>不能预览</span>");
+					return;
+				}
+
+				$img.attr("src", src);
+			}, thumbnailWidth, thumbnailHeight);
+
+		});
+		
+		
+		$scope.cid = $stateParams.cid;
+		if($stateParams.cid==1){
+			$scope.catagoriesText="资讯";
+		}else{
+			$scope.catagoriesText="案例";
+		}
+		
+		$scope.liulanliang = 0 ;
+		
+		
+		//递归转换数据格式，把集合中list和他的子集合children，合并成一元数组options;
+		function changeList(list, deep) {
+			var options = [];
+			var pre = '|-';
+			var tmp = deep;
+			if(deep > 0) {
+				while(tmp > 0) {
+					pre += '--';
+					tmp--;
+				}
+			}
+			for(var i = 0; i < list.length; i++) {
+			
+				list[i].title = pre + list[i].title;
+				options[options.length] = list[i];
+				if(list[i].children) {
+					var child = changeList(list[i].children, deep + 1);
+					options = options.concat(child);
+				}
+			}
+			return options;
+		}
+		
+		$scope.numberDes = false;
+		$scope.titleDes = false;
+		$scope.language = 0;
+	
+		$scope.addTitle=$stateParams.cTitle
+		
+		//获取类别的列表
+		var data = {id:$stateParams.cid};
+		var type="adminConFromCatList";
+		applicationService(data,type,function(data) {
+			var thisData = data.data;
+			var status = data.status;
+			var statusText = data.statusText;
+			if(status == 1) {
+				$scope.types = changeList(thisData, 0)
+				$scope.types.selected = $scope.types[0];
+				if($stateParams.id != "" && $stateParams.id!=null){
+					//获取内容
+					var applyData ={
+						id : $stateParams.id}
+					var type= "adminConFromGetInfo";
+						applicationService(applyData,type,function(data){
+								var status = data.status;
+								var statusText = data.statusText;
+								if(status == 1) {
+									
+									var newData = changeData(data.data[0],$scope.types);
+									$scope.types.selected = {id: newData.cid,title:newData.type};
+									$scope.number = newData.number;
+									$scope.title = newData.title;
+									$scope.author = newData.author;
+									$scope.language = newData.languageNum;
+									$scope.industry = newData.industry;
+									$scope.key = newData.key;
+									
+									
+									for(var j=0;j<newData.anliType.length;j++){
+										$("#anlileixing"+newData.anliType[j]).prop("checked", true);
+										}
+									$scope.abstract = newData.anliAbstract;
+									$scope.htmlVariable = newData.htmlVariable;
+									var editor = UE.getEditor('editor');
+									editor.ready(function() {
+										editor.setContent($scope.htmlVariable);
+									})
+									if(newData.titleImg!="../contents/imgs/home/banner.png"){
+										$("#titleImgId").val(newData.titleImgMd5);
+										var imgHtml = "<img src='" + newData.titleImg + "' style='width:auto;height:100px' />"
+										$("#fileList1").append(imgHtml);
+									}
+									$("#fileList").empty();
+									var  md5= newData.fujianArr;
+									for(var k=0;k<md5.length;k++){
+										if(k==0){
+											$scope.logoImg=JSON.stringify(md5[k]);
+											
+										}else{
+											$scope.logoImg = $scope.logoImg+"##&&"+JSON.stringify(md5[k]);
+										}
+										var imgHtml = "<a style='text-decoration: underline;color:red;margin-right:20px;' href='" + zeroURL + "admin/file/download?id=" + md5[k].md5 + "'>"+md5[k].fileName+"</a>";
+										if(md5[k].md5=="" || md5[k].md5==null){
+															
+										}else{
+											$("#fileList").append(imgHtml);
+										}			
+									}
+									$("#bannerId").val($scope.logoImg);	
+									$scope.$apply();
+							
+								} else {
+									alertHtml($modal,"获取内容失败;原因:" + statusText);
+								}
+							
+							},$('body'));
+				}
+				$scope.$apply();
+			} else {
+				alertHtml($modal,"获取类别列表失败,原因："+statusText);
+			}
+		},$('body'))
+		
+		
+		
+		
+			
+		$scope.back = function(){
+			$state.go('app.contentsList',{"cid":$scope.cid,"catagoriesName":$scope.addTitle});
+			
+			//$state.go('app.analyse',{"cid":2,"id":290});
+			
+		}
+		
+		$scope.add = function() {
+			$scope.numberDes = false;
+			$scope.titleDes = false;
+			
+			var editor = UE.getEditor('editor');
+			editor.ready(function() {
+				$scope.htmlVariable = editor.getContent();
+			})
+			
+			var id = $stateParams.id;
+			var cid = [];
+			if($scope.types.selected!=="" && $scope.types.selected!=null){
+				cid = [$scope.types.selected.id];
+			}
+			
+			var applyData={
+				"cid":cid,
+				"content": []
+			};
+			var typeName= "adminConFromAdd";
+			if(id!="" && id!=null){
+				typeName= "adminConFromEdit";  //修改活动
+				applyData.id = parseInt(id);
+			}
+			
+			var objS = $(".form-group");
+			for(var i = 0; i < objS.length; i++) {
+				var title= objS.eq(i).find("label").eq(0).text().replace("资讯","案例")
+				var type = objS.eq(i).attr('typeNum');
+				
+				var text = "";
+				if(type == 1) {
+					text = objS.eq(i).find("input").val();
+					if(title=="案例编号" && !captchaLibrary.isNull(text)){
+						$scope.numberDes = true;
+						return ;
+					}
+					if(title=="案例题目" && !captchaLibrary.isNull(text)){
+						$scope.titleDes = true;
+						return ;
+					}
+					if(title=="案例作者" && !captchaLibrary.isNull(text)){
+						$scope.authorDes = true;
+						return ;
+					}
+					
+					
+					if(title=="浏览量" && !captchaLibrary.isNull(text)){
+						text=0;
+					}
+					
+					
+				}
+				if(type == 4) {
+					i++;
+					text = objS.eq(i).find("input").val();
+					
+					text = text.split('##&&');
+					if(text.length==1 && (text[0]=="" || text[0]==null)){
+						text=[];
+					}
+					
+				}
+				if(type == 5) {
+					text = objS.eq(i).find("textarea").val();
+					if(title=="案例摘要" && !captchaLibrary.isNull(text)){
+						$scope.abstractDes = true;
+						return ;
+					}
+				}
+				if(type == 6) {
+					text = $scope.htmlVariable;
+					if(title=="内容" && !captchaLibrary.isNull(text)){
+						
+						$scope.htmlVariableDes = true;
+						return ;
+					}
+				}
+				if(type == 7 && title!="案例分类") {
+					text = objS.eq(i).find("select").val();
+				}
+				if(type == 9) {
+					text = getCheckedOfList();
+				}
+				
+				if(title!="案例分类") {
+					applyData.content.push({
+						'title': title,
+						'type': type,
+						'value': text
+					});
+				}
+				
+				
+			}
+			
+			
+			
+			applicationService(applyData,typeName,function(data){
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					alertHtml($modal,"操作成功!",function(){
+						if($stateParams.cid==2){
+							$state.go('app.analyse',{"cid":$stateParams.cid,"id":data.data});
+						}else{
+							$state.go('app.contentsList',{"cid":$stateParams.cid});
+						}
+					});
+					
+				} else {
+					alertHtml($modal,"操作失败;原因:" + statusText);
+				}
+			},$('body'));	
+			
+			
+			var applyData={
+			"id":$scope.id,
+		}
+		
+			
+		}
+	}])
+</script>

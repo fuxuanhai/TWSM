@@ -1,0 +1,149 @@
+﻿<div  style="width:100%;margin:auto;float: left;" ng-controller="homeIndex" id="homeIndex">
+	<div class="logoheader">
+		<img class="headerImg"  src="../contents/imgs/phone/taoxiang.png"/>
+		<div class="loginUser" id="userObj"></div>
+	<!--	<div class="yulanNumber">已预览100</div> -->
+	</div>
+	<div style="width:90%;margin-left:5%;float:left">
+		<div class="listLi" ng-click="shoucang()">
+			<img src="../contents/imgs/phone/shoucang.png" />
+			<span>我的收藏</span>
+			<span style="float:right">{{myshoucangCount}}</span>
+		</div>
+		<div class="listLi" ng-click="myAnli()">
+			<img src="../contents/imgs/phone/shoucang.png" />
+			<span>我的案例</span>
+			<span style="float:right">{{myAnliCount}}</span>
+		</div>
+	<!--	<div class="listLi">
+			<img src="../contents/imgs/phone/shoucang.png" />
+			<span>设置</span>
+		</div>  -->
+		<div class="listLi" ng-click="tuichu()">
+			<img src="../contents/imgs/phone/shoucang.png" />
+			<span>退出</span>
+		</div>
+	</div>
+
+	
+
+</div>
+
+<style>
+	.app-header-fixed {
+		padding-top: 0px;
+		background:#F3EEED;
+	}
+	.logoheader{
+		width:100%;
+		height:200px;
+		float:left;
+		background:#800508;
+		text-align:center;
+		color:white;
+	}
+	.headerImg{
+		height:80px;
+		margin-top:30px;
+		margin-bottom:10px;
+	}
+	.loginUser,.yulanNumber{
+		height:30px;
+		line-height:30px;
+	}
+	.listLi{
+		width:100%;
+		height:50px;
+		line-height:50px;
+		font-size:1.1rem;
+		border-bottom:1px solid #bfbfbf;
+	}
+	.listLi img{
+		height:35px;
+	}
+</style>
+<script>
+	app.controller('homeIndex', ['$scope','$state','$timeout','$modal','$stateParams', function($scope,$state,$timeout,$modal,$stateParams) {
+		
+		
+		$scope.myAnli = function(){
+			$state.go("phoneApp.myAnli",{"typeId":1});
+		}
+		$scope.shoucang = function(){
+			$state.go("phoneApp.myAnli",{"typeId":2});
+		}
+		
+		
+		var data = {"token":$.cookie('userToken')};
+			var type="phoneToken";
+			var thisUserID={};
+		applicationService(data,type,function(data) {
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$("#userObj").html(thisData.account);
+				} else {
+					console.log("获取当前用户失败,原因："+statusText);
+				}
+			});
+		
+			var cid = "";
+			var applyData={"cid":cid,"pn":1,"pc":6,condition:[]};
+			
+			var type= "phoneConMyInfoList";
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$scope.myAnliCount = thisData.total;
+					$scope.$digest();
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}	
+			},$('body')); 
+			
+			var cid = "";
+			var applyData={"cid":cid,"pn":1,"pc":6,condition:[]};
+			
+			var type= "phoneConMyInfoShoucang";
+			applicationService(applyData,type,function(data){
+				var thisData = data.data;
+				var status = data.status;
+				var statusText = data.statusText;
+				if(status == 1) {
+					$scope.myshoucangCount = thisData.total;
+					$scope.$digest();
+				} else {
+					alertHtml($modal,"获取内容列表失败,原因："+statusText);
+				}	
+			},$('body')); 
+		
+		$scope.tuichu = function(){
+				var data={"TOKEN":$.cookie('userToken'),"userToken":$.cookie('userToken')};
+				var type="adminSignOut";
+				applicationService(data,type,function(data) {
+						userToken = data.data;
+						var status = data.status;
+						var statusText = data.statusText;
+						if(status==1){
+							alertHtml($modal,"退出成功",function(){
+								$.cookie("userToken", "",{ path: '/' });
+								$.cookie("uid", "",{ path: '/' });
+								$.cookie("sid", "",{ path: '/' });
+								$.cookie("loginName", "",{ path: '/' });
+								$.cookie("status", "",{path: '/' });
+								$.cookie("statusText", "",{path: '/' });
+								$state.go("phoneApp.login");
+							})
+							
+					}else{
+							alertHtml($modal,"退出失败,原因："+statusText);
+						}
+				
+				},$('body'))
+			}
+		
+	}]);
+</script>	
